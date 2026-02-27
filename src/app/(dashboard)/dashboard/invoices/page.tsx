@@ -12,7 +12,7 @@ import {
 import { InvoiceStatusBadge } from "@/components/invoices/invoice-status-badge";
 import { InvoiceDeleteButton } from "@/components/invoices/invoice-delete-button";
 import { InvoiceClickableRow } from "@/components/invoices/invoice-clickable-row";
-import { CheckCircle, ClipboardCheck, DollarSign, FileText, Plus, Receipt } from "lucide-react";
+import { ArrowDown, ArrowUp, ArrowUpDown, CheckCircle, ClipboardCheck, DollarSign, FileText, Plus, Receipt } from "lucide-react";
 import Link from "next/link";
 import {
   format,
@@ -63,15 +63,21 @@ export default async function InvoicesPage({
     period?: string;
     dateFrom?: string;
     dateTo?: string;
+    sort?: string;
+    dir?: string;
   }>;
 }) {
-  const { status: statusFilter, period, dateFrom, dateTo } = await searchParams;
+  const { status: statusFilter, period, dateFrom, dateTo, sort, dir } = await searchParams;
   const supabase = await createClient();
+
+  // Sorting
+  const sortColumn = sort === "date" ? "invoice_date" : sort === "amount" ? "total_amount" : null;
+  const sortAsc = dir === "asc";
 
   let query = supabase
     .from("invoices")
     .select("*, invoice_items(count)")
-    .order("created_at", { ascending: false });
+    .order(sortColumn || "created_at", { ascending: sortColumn ? sortAsc : false });
 
   if (statusFilter && statusFilter !== "all") {
     query = query.eq("status", statusFilter);
@@ -122,6 +128,31 @@ export default async function InvoicesPage({
     }
     const qs = sp.toString();
     return `/dashboard/invoices${qs ? `?${qs}` : ""}`;
+  }
+
+  function sortUrl(column: "date" | "amount") {
+    // Toggle: no sort → desc → asc → no sort
+    let newDir: string | undefined;
+    if (sort === column) {
+      newDir = dir === "desc" ? "asc" : undefined;
+    } else {
+      newDir = "desc";
+    }
+    return buildUrl({
+      status: activeFilter,
+      period: activePeriod,
+      dateFrom,
+      dateTo,
+      sort: newDir ? column : undefined,
+      dir: newDir,
+    });
+  }
+
+  function SortIcon({ column }: { column: "date" | "amount" }) {
+    if (sort !== column) return <ArrowUpDown className="h-3 w-3 ml-1 opacity-40" />;
+    return dir === "asc"
+      ? <ArrowUp className="h-3 w-3 ml-1" />
+      : <ArrowDown className="h-3 w-3 ml-1" />;
   }
 
   const periodOptions = [
@@ -243,9 +274,17 @@ export default async function InvoicesPage({
                 <TableRow>
                   <TableHead>Supplier</TableHead>
                   <TableHead>Invoice #</TableHead>
-                  <TableHead>Date</TableHead>
+                  <TableHead className="p-0">
+                    <Link href={sortUrl("date")} className="inline-flex items-center gap-1 px-3 py-2 text-inherit no-underline hover:text-gray-900">
+                      Date <SortIcon column="date" />
+                    </Link>
+                  </TableHead>
                   <TableHead>Due Date</TableHead>
-                  <TableHead>Total</TableHead>
+                  <TableHead className="p-0">
+                    <Link href={sortUrl("amount")} className="inline-flex items-center gap-1 px-3 py-2 text-inherit no-underline hover:text-gray-900">
+                      Total <SortIcon column="amount" />
+                    </Link>
+                  </TableHead>
                   <TableHead>Items</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Actions</TableHead>
