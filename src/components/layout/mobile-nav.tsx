@@ -8,6 +8,7 @@ import {
   ClipboardList,
   Users,
   Package,
+  Receipt,
   Menu,
 } from "lucide-react";
 import {
@@ -23,6 +24,7 @@ const bottomNavItems = [
   { name: "Orders", href: "/dashboard/orders", icon: ClipboardList },
   { name: "Customers", href: "/dashboard/customers", icon: Users },
   { name: "Products", href: "/dashboard/products", icon: Package },
+  { name: "Invoices", href: "/dashboard/invoices", icon: Receipt },
 ];
 
 interface MobileNavProps {
@@ -57,7 +59,7 @@ export function MobileNav({ onSignOut }: MobileNavProps) {
 
       {/* Bottom navigation bar for mobile */}
       <nav className="fixed bottom-0 left-0 right-0 z-40 border-t border-amber-200 bg-white md:hidden">
-        <div className="flex h-16 items-center justify-around">
+        <div className="flex h-14 items-center justify-around">
           {bottomNavItems.map((item) => {
             const isActive = pathname === item.href ||
               (item.href !== "/dashboard" && pathname.startsWith(item.href));
@@ -67,15 +69,15 @@ export function MobileNav({ onSignOut }: MobileNavProps) {
                 key={item.name}
                 href={item.href}
                 className={cn(
-                  "flex flex-col items-center gap-1 px-3 py-2 text-xs transition-colors",
+                  "flex flex-col items-center gap-0.5 px-2 py-1.5 text-[10px] transition-colors",
                   isActive
                     ? "text-amber-700"
-                    : "text-gray-500"
+                    : "text-gray-400"
                 )}
               >
                 <item.icon className={cn(
-                  "h-6 w-6",
-                  isActive && "text-amber-600"
+                  "h-5 w-5",
+                  isActive ? "text-amber-600" : "text-gray-400"
                 )} />
                 <span className={cn(
                   "font-medium",
