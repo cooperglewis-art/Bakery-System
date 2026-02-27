@@ -22,12 +22,20 @@ import { Plus, Search, Filter } from "lucide-react";
 import Link from "next/link";
 import { format } from "date-fns";
 import { OrdersPagination } from "@/components/orders/orders-pagination";
-import type { Order } from "@/types/database";
 
-type OrderWithRelations = Order & {
-  customer: { name: string; phone: string | null } | null;
-  order_items: { id: string; product_name: string; quantity: number; unit_price: number }[];
-};
+interface OrderRow {
+  id: string;
+  order_number: number;
+  status: string;
+  source: string;
+  delivery_date: string;
+  delivery_time_slot: string | null;
+  total: number;
+  customer_name: string | null;
+  customer_phone: string | null;
+  items: { id: string; product_name: string; quantity: number; unit_price: number }[];
+  total_count: number;
+}
 
 interface SearchParams {
   status?: string;
@@ -48,58 +56,16 @@ export default async function OrdersPage({
   const currentPage = Math.max(1, parseInt(params.page || "1"));
   const offset = (currentPage - 1) * PAGE_SIZE;
 
-  // If searching, find matching customer IDs first
-  let customerIds: string[] | null = null;
-  if (params.search) {
-    const { data: matchingCustomers } = await supabase
-      .from("customers")
-      .select("id")
-      .or(`name.ilike.%${params.search}%,phone.ilike.%${params.search}%`);
+  const { data } = await supabase.rpc("search_orders", {
+    search_term: params.search || null,
+    status_filter: params.status && params.status !== "all" ? params.status : null,
+    date_filter: params.date || null,
+    page_size: PAGE_SIZE,
+    page_offset: offset,
+  });
 
-    customerIds = matchingCustomers?.map((c) => c.id) || [];
-  }
-
-  // Build query
-  let query = supabase
-    .from("orders")
-    .select(
-      `
-      *,
-      customer:customers(name, phone),
-      order_items(id, product_name, quantity, unit_price)
-    `,
-      { count: "exact" }
-    )
-    .order("delivery_date", { ascending: true })
-    .order("created_at", { ascending: false });
-
-  // Apply filters
-  if (params.status && params.status !== "all") {
-    query = query.eq("status", params.status);
-  }
-
-  if (params.date) {
-    query = query.eq("delivery_date", params.date);
-  }
-
-  // Apply search: match on order_number OR customer IDs
-  if (params.search) {
-    const searchTerm = params.search;
-    const orderNumFilter = `order_number.eq.${parseInt(searchTerm) || 0}`;
-
-    if (customerIds && customerIds.length > 0) {
-      query = query.or(
-        `${orderNumFilter},customer_id.in.(${customerIds.join(",")})`
-      );
-    } else {
-      // Only search by order number if no customers match
-      query = query.or(orderNumFilter);
-    }
-  }
-
-  const { data, count } = await query.range(offset, offset + PAGE_SIZE - 1);
-  const orders = (data || []) as OrderWithRelations[];
-  const totalCount = count || 0;
+  const orders = (data || []) as OrderRow[];
+  const totalCount = orders[0]?.total_count ?? 0;
   const totalPages = Math.ceil(totalCount / PAGE_SIZE);
 
   const statusColors: Record<string, string> = {
@@ -221,19 +187,19 @@ export default async function OrdersPage({
                     <TableCell>
                       <div>
                         <p className="font-medium">
-                          {order.customer?.name || "Walk-in"}
+                          {order.customer_name || "Walk-in"}
                         </p>
-                        {order.customer?.phone && (
-                          <p className="text-sm text-gray-500">{order.customer.phone}</p>
+                        {order.customer_phone && (
+                          <p className="text-sm text-gray-500">{order.customer_phone}</p>
                         )}
                       </div>
                     </TableCell>
                     <TableCell>
                       <p className="text-sm">
-                        {order.order_items?.length || 0} item(s)
+                        {order.items?.length || 0} item(s)
                       </p>
                       <p className="text-xs text-gray-500 truncate max-w-[200px]">
-                        {order.order_items
+                        {order.items
                           ?.map((item: { product_name: string }) => item.product_name)
                           .join(", ")}
                       </p>
@@ -289,10 +255,10 @@ export default async function OrdersPage({
                         </Badge>
                       </div>
                       <p className="font-medium mt-1">
-                        {order.customer?.name || "Walk-in"}
+                        {order.customer_name || "Walk-in"}
                       </p>
-                      {order.customer?.phone && (
-                        <p className="text-sm text-gray-500">{order.customer.phone}</p>
+                      {order.customer_phone && (
+                        <p className="text-sm text-gray-500">{order.customer_phone}</p>
                       )}
                     </div>
                     <div className="text-right">
@@ -309,7 +275,7 @@ export default async function OrdersPage({
                         {order.delivery_time_slot && ` • ${order.delivery_time_slot}`}
                       </span>
                       <span className="text-gray-500">
-                        {order.order_items?.length || 0} item(s)
+                        {order.items?.length || 0} item(s)
                       </span>
                     </div>
                   </div>

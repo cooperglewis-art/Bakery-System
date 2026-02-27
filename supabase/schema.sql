@@ -305,3 +305,67 @@ BEGIN
     order_count = EXCLUDED.order_count;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Function to search orders with filters and pagination (single round-trip)
+CREATE OR REPLACE FUNCTION search_orders(
+  search_term TEXT DEFAULT NULL,
+  status_filter TEXT DEFAULT NULL,
+  date_filter DATE DEFAULT NULL,
+  page_size INT DEFAULT 25,
+  page_offset INT DEFAULT 0
+)
+RETURNS TABLE (
+  id UUID,
+  order_number INT,
+  status order_status,
+  source order_source,
+  delivery_date DATE,
+  delivery_time_slot TEXT,
+  total NUMERIC,
+  customer_name TEXT,
+  customer_phone TEXT,
+  items JSONB,
+  total_count BIGINT
+) AS $$
+BEGIN
+  RETURN QUERY
+  SELECT
+    o.id,
+    o.order_number,
+    o.status,
+    o.source,
+    o.delivery_date,
+    o.delivery_time_slot,
+    o.total,
+    c.name AS customer_name,
+    c.phone AS customer_phone,
+    COALESCE(oi_agg.items, '[]'::JSONB) AS items,
+    COUNT(*) OVER() AS total_count
+  FROM orders o
+  LEFT JOIN customers c ON c.id = o.customer_id
+  LEFT JOIN LATERAL (
+    SELECT jsonb_agg(
+      jsonb_build_object(
+        'id', oi.id,
+        'product_name', oi.product_name,
+        'quantity', oi.quantity,
+        'unit_price', oi.unit_price
+      )
+    ) AS items
+    FROM order_items oi
+    WHERE oi.order_id = o.id
+  ) oi_agg ON true
+  WHERE
+    (status_filter IS NULL OR o.status = status_filter::order_status)
+    AND (date_filter IS NULL OR o.delivery_date = date_filter)
+    AND (
+      search_term IS NULL
+      OR c.name ILIKE '%' || search_term || '%'
+      OR c.phone ILIKE '%' || search_term || '%'
+      OR o.order_number::TEXT = search_term
+    )
+  ORDER BY o.delivery_date ASC, o.created_at DESC
+  LIMIT page_size
+  OFFSET page_offset;
+END;
+$$ LANGUAGE plpgsql STABLE SECURITY DEFINER;
