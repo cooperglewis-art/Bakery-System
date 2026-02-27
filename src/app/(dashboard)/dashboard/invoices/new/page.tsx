@@ -2,7 +2,6 @@
 
 import { useState, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -29,7 +28,6 @@ interface QueuedFile {
 
 export default function NewInvoicePage() {
   const router = useRouter();
-  const supabase = createClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [files, setFiles] = useState<QueuedFile[]>([]);
@@ -100,10 +98,9 @@ export default function NewInvoicePage() {
     setFiles((prev) => prev.filter((f) => f.id !== id));
   };
 
-  const processAndSaveFile = async (queued: QueuedFile): Promise<void> => {
-    // Update status to processing
+  const processAndSaveFile = async (queued: QueuedFile): Promise<{ success: boolean; invoiceId?: string }> => {
     setFiles((prev) =>
-      prev.map((f) => (f.id === queued.id ? { ...f, status: "processing" } : f))
+      prev.map((f) => (f.id === queued.id ? { ...f, status: "processing", error: undefined } : f))
     );
 
     try {
@@ -123,63 +120,46 @@ export default function NewInvoicePage() {
 
       const data = await response.json();
 
-      // Step 2: Save
+      // Step 2: Save via server API
       setFiles((prev) =>
         prev.map((f) => (f.id === queued.id ? { ...f, status: "saving" } : f))
       );
 
       let imageUrl: string | null = null;
       if (data.storage_path) {
-        const { data: urlData } = supabase.storage
-          .from("invoices")
-          .getPublicUrl(data.storage_path);
-        imageUrl = urlData.publicUrl;
+        imageUrl = data.storage_path;
       }
 
-      const { data: invoice, error: invoiceError } = await supabase
-        .from("invoices")
-        .insert({
-          supplier_name: data.supplier_name || "Unknown Supplier",
-          invoice_number: data.invoice_number || null,
+      const saveResponse = await fetch("/api/invoices/save", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          supplier_name: data.supplier_name,
+          invoice_number: data.invoice_number,
           invoice_date: data.date || new Date().toISOString().split("T")[0],
-          total_amount: data.total || null,
+          total_amount: data.total,
           image_url: imageUrl,
-          ocr_confidence: data.confidence || null,
-          status: "processed" as const,
-        } as never)
-        .select()
-        .single();
+          ocr_confidence: data.confidence,
+          line_items: data.line_items || [],
+        }),
+      });
 
-      if (invoiceError || !invoice) {
-        throw new Error(invoiceError?.message || "Failed to save invoice");
+      if (!saveResponse.ok) {
+        const errorData = await saveResponse.json();
+        throw new Error(errorData.error || "Failed to save invoice");
       }
 
-      const invoiceRecord = invoice as unknown as { id: string };
-
-      // Save line items
-      if (data.line_items && Array.isArray(data.line_items) && data.line_items.length > 0) {
-        const itemsToInsert = data.line_items.map(
-          (item: { description?: string; quantity?: number; unit?: string; unit_cost?: number }) => ({
-            invoice_id: invoiceRecord.id,
-            description: item.description || "",
-            quantity: item.quantity || 0,
-            unit: item.unit || null,
-            unit_cost: item.unit_cost || null,
-            total_cost: (item.quantity || 0) * (item.unit_cost || 0),
-            is_matched: false,
-          })
-        );
-
-        await supabase.from("invoice_items").insert(itemsToInsert as never);
-      }
+      const saveData = await saveResponse.json();
 
       setFiles((prev) =>
         prev.map((f) =>
           f.id === queued.id
-            ? { ...f, status: "done", invoiceId: invoiceRecord.id }
+            ? { ...f, status: "done", invoiceId: saveData.id }
             : f
         )
       );
+
+      return { success: true, invoiceId: saveData.id };
     } catch (error) {
       console.error(`Error processing ${queued.file.name}:`, error);
       setFiles((prev) =>
@@ -193,48 +173,52 @@ export default function NewInvoicePage() {
             : f
         )
       );
+
+      return { success: false };
     }
   };
 
   const handleSubmit = async () => {
-    const pending = files.filter((f) => f.status === "pending");
-    if (pending.length === 0) {
+    const toProcess = files.filter((f) => f.status === "pending" || f.status === "error");
+    if (toProcess.length === 0) {
       toast.error("No files to process");
       return;
     }
 
     setIsSubmitting(true);
 
-    // Process files sequentially to avoid rate limits
-    for (const queued of pending) {
-      await processAndSaveFile(queued);
+    const results: { success: boolean; invoiceId?: string }[] = [];
+
+    for (const queued of toProcess) {
+      const result = await processAndSaveFile(queued);
+      results.push(result);
     }
+
+    const successCount = results.filter((r) => r.success).length;
+    const failCount = results.filter((r) => !r.success).length;
+    const successResults = results.filter((r) => r.success);
 
     setIsSubmitting(false);
 
-    const results = files.filter((f) => f.status === "done" || f.status === "error");
-    const successes = results.filter((f) => f.status === "done");
-    const failures = results.filter((f) => f.status === "error");
-
-    if (successes.length > 0 && failures.length === 0) {
+    if (successCount > 0 && failCount === 0) {
       toast.success(
-        `${successes.length} invoice${successes.length > 1 ? "s" : ""} processed and saved`
+        `${successCount} invoice${successCount > 1 ? "s" : ""} processed and saved`
       );
-      if (successes.length === 1 && successes[0].invoiceId) {
-        router.push(`/dashboard/invoices/${successes[0].invoiceId}`);
+      if (successCount === 1 && successResults[0].invoiceId) {
+        router.push(`/dashboard/invoices/${successResults[0].invoiceId}`);
       } else {
         router.push("/dashboard/invoices");
       }
-    } else if (successes.length > 0) {
+    } else if (successCount > 0) {
       toast.success(
-        `${successes.length} saved, ${failures.length} failed`
+        `${successCount} saved, ${failCount} failed`
       );
     } else {
       toast.error("All invoices failed to process");
     }
   };
 
-  const pendingCount = files.filter((f) => f.status === "pending").length;
+  const pendingCount = files.filter((f) => f.status === "pending" || f.status === "error").length;
   const processingFile = files.find(
     (f) => f.status === "processing" || f.status === "saving"
   );

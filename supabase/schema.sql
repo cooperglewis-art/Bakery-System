@@ -120,6 +120,7 @@ CREATE TABLE invoices (
   ocr_raw_text TEXT,
   ocr_confidence DECIMAL(3,2),
   status TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'processed', 'verified')),
+  due_date DATE,
   created_by UUID REFERENCES profiles(id) ON DELETE SET NULL,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()

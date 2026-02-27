@@ -23,12 +23,14 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { InvoiceStatusBadge } from "@/components/invoices/invoice-status-badge";
+import { Input } from "@/components/ui/input";
 import {
   ArrowLeft,
   CheckCircle,
   Loader2,
   FileText,
   Package,
+  Save,
   Trash2,
   RotateCcw,
 } from "lucide-react";
@@ -94,6 +96,28 @@ export function InvoiceVerifyClient({
   const [isVerifying, setIsVerifying] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isTogglingStatus, setIsTogglingStatus] = useState(false);
+  const [dueDate, setDueDate] = useState(invoice.due_date || "");
+  const [isSavingDueDate, setIsSavingDueDate] = useState(false);
+  const dueDateChanged = dueDate !== (invoice.due_date || "");
+
+  const saveDueDate = async () => {
+    setIsSavingDueDate(true);
+    try {
+      const { error } = await supabase
+        .from("invoices")
+        .update({ due_date: dueDate || null } as never)
+        .eq("id", invoice.id);
+
+      if (error) throw error;
+      toast.success("Due date saved");
+      router.refresh();
+    } catch (error) {
+      console.error("Due date save error:", error);
+      toast.error("Failed to save due date");
+    } finally {
+      setIsSavingDueDate(false);
+    }
+  };
 
   const loadMatches = useCallback(async () => {
     const unmatchedDescriptions = items
@@ -286,6 +310,31 @@ export function InvoiceVerifyClient({
               {invoice.total_amount != null &&
                 ` - $${invoice.total_amount.toFixed(2)}`}
             </p>
+            <div className="flex items-center gap-2 mt-1">
+              <span className="text-sm text-gray-500">Due:</span>
+              <Input
+                type="date"
+                value={dueDate}
+                onChange={(e) => setDueDate(e.target.value)}
+                className="h-7 w-40 text-sm"
+              />
+              {dueDateChanged && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={saveDueDate}
+                  disabled={isSavingDueDate}
+                  className="h-7 text-xs"
+                >
+                  {isSavingDueDate ? (
+                    <Loader2 className="h-3 w-3 animate-spin" />
+                  ) : (
+                    <Save className="h-3 w-3 mr-1" />
+                  )}
+                  Save
+                </Button>
+              )}
+            </div>
           </div>
         </div>
 

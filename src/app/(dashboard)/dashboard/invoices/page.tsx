@@ -11,7 +11,8 @@ import {
 } from "@/components/ui/table";
 import { InvoiceStatusBadge } from "@/components/invoices/invoice-status-badge";
 import { InvoiceDeleteButton } from "@/components/invoices/invoice-delete-button";
-import { CheckCircle, ClipboardCheck, FileText, Plus, Receipt } from "lucide-react";
+import { InvoiceClickableRow } from "@/components/invoices/invoice-clickable-row";
+import { CheckCircle, ClipboardCheck, DollarSign, FileText, Plus, Receipt } from "lucide-react";
 import Link from "next/link";
 import {
   format,
@@ -20,6 +21,7 @@ import {
   startOfMonth,
   endOfMonth,
   subMonths,
+  differenceInDays,
 } from "date-fns";
 import { InvoiceDateFilter } from "./invoice-date-filter";
 import type { Invoice } from "@/types/database";
@@ -75,8 +77,11 @@ export default async function InvoicesPage({
     query = query.eq("status", statusFilter);
   }
 
+  // Default to "this_month" when no period or custom dates specified
+  const effectivePeriod = period || (dateFrom || dateTo ? undefined : "this_month");
+
   // Apply date filtering
-  const dateRange = period ? getDateRange(period) : null;
+  const dateRange = effectivePeriod ? getDateRange(effectivePeriod) : null;
   const effectiveFrom = dateRange?.from || dateFrom;
   const effectiveTo = dateRange?.to || dateTo;
 
@@ -91,7 +96,14 @@ export default async function InvoicesPage({
   const invoices = (invoicesData || []) as unknown as InvoiceWithCount[];
 
   const activeFilter = statusFilter || "all";
-  const activePeriod = period || (dateFrom || dateTo ? "custom" : "all_time");
+  const activePeriod = period || (dateFrom || dateTo ? "custom" : "this_month");
+
+  // Compute period totals
+  const totalAmount = invoices.reduce(
+    (sum, inv) => sum + (inv.total_amount ?? 0),
+    0
+  );
+  const periodLabel = { this_week: "This Week", this_month: "This Month", last_month: "Last Month", all_time: "All Time", custom: "Custom Range" }[activePeriod] || activePeriod;
 
   const statusOptions = [
     { value: "all", label: "All" },
@@ -102,7 +114,9 @@ export default async function InvoicesPage({
   function buildUrl(params: Record<string, string | undefined>) {
     const sp = new URLSearchParams();
     for (const [key, value] of Object.entries(params)) {
-      if (value && value !== "all" && value !== "all_time") {
+      if (value && value !== "all") {
+        // Keep "all_time" as explicit param; omit "this_month" since it's the default
+        if (key === "period" && value === "this_month") continue;
         sp.set(key, value);
       }
     }
@@ -173,7 +187,7 @@ export default async function InvoicesPage({
               key={option.value}
               href={buildUrl({
                 status: activeFilter,
-                period: option.value !== "all_time" ? option.value : undefined,
+                period: option.value,
               })}
             >
               <Button
@@ -198,6 +212,19 @@ export default async function InvoicesPage({
         </div>
       </div>
 
+      {/* Period Summary */}
+      <Card className="bg-amber-50 border-amber-200">
+        <CardContent className="flex items-center gap-3 py-4">
+          <DollarSign className="h-5 w-5 text-amber-700" />
+          <span className="text-lg font-semibold text-amber-900">
+            ${totalAmount.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          </span>
+          <span className="text-sm text-amber-700">
+            &mdash; {periodLabel}: {invoices.length} invoice{invoices.length !== 1 ? "s" : ""}
+          </span>
+        </CardContent>
+      </Card>
+
       {/* Invoices Table */}
       <Card>
         <CardHeader>
@@ -217,6 +244,7 @@ export default async function InvoicesPage({
                   <TableHead>Supplier</TableHead>
                   <TableHead>Invoice #</TableHead>
                   <TableHead>Date</TableHead>
+                  <TableHead>Due Date</TableHead>
                   <TableHead>Total</TableHead>
                   <TableHead>Items</TableHead>
                   <TableHead>Status</TableHead>
@@ -228,21 +256,37 @@ export default async function InvoicesPage({
                   const itemCount =
                     invoice.invoice_items?.[0]?.count ?? 0;
 
+                  // Due date indicator
+                  let dueDateDisplay: React.ReactNode = "-";
+                  if (invoice.due_date) {
+                    const dueDate = new Date(invoice.due_date + "T00:00:00");
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    const daysUntilDue = differenceInDays(dueDate, today);
+                    const formatted = format(dueDate, "MMM d, yyyy");
+
+                    if (daysUntilDue < 0) {
+                      dueDateDisplay = <span className="text-red-600 font-medium">{formatted} <span className="text-xs">(overdue)</span></span>;
+                    } else if (daysUntilDue <= 7) {
+                      dueDateDisplay = <span className="text-amber-600 font-medium">{formatted}</span>;
+                    } else {
+                      dueDateDisplay = <span className="text-gray-600">{formatted}</span>;
+                    }
+                  }
+
                   return (
-                    <TableRow key={invoice.id}>
-                      <TableCell>
-                        <Link
-                          href={`/dashboard/invoices/${invoice.id}`}
-                          className="font-medium text-amber-700 hover:text-amber-800 hover:underline"
-                        >
-                          {invoice.supplier_name}
-                        </Link>
+                    <InvoiceClickableRow key={invoice.id} href={`/dashboard/invoices/${invoice.id}`}>
+                      <TableCell className="font-medium text-gray-900">
+                        {invoice.supplier_name}
                       </TableCell>
                       <TableCell className="text-gray-600">
                         {invoice.invoice_number || "-"}
                       </TableCell>
                       <TableCell className="text-gray-600">
                         {format(new Date(invoice.invoice_date), "MMM d, yyyy")}
+                      </TableCell>
+                      <TableCell>
+                        {dueDateDisplay}
                       </TableCell>
                       <TableCell className="font-medium">
                         {invoice.total_amount != null
@@ -280,7 +324,7 @@ export default async function InvoicesPage({
                           />
                         </div>
                       </TableCell>
-                    </TableRow>
+                    </InvoiceClickableRow>
                   );
                 })}
               </TableBody>
@@ -288,13 +332,19 @@ export default async function InvoicesPage({
           ) : (
             <div className="text-center py-12">
               <FileText className="h-12 w-12 mx-auto text-gray-300" />
-              <p className="mt-4 text-gray-500">No invoices found</p>
-              <Link href="/dashboard/invoices/new">
-                <Button className="mt-4 bg-amber-600 hover:bg-amber-700">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Upload Invoice
-                </Button>
-              </Link>
+              {activePeriod !== "all_time" || activeFilter !== "all" ? (
+                <p className="mt-4 text-gray-500">No invoices for this period</p>
+              ) : (
+                <>
+                  <p className="mt-4 text-gray-500">No invoices found</p>
+                  <Link href="/dashboard/invoices/new">
+                    <Button className="mt-4 bg-amber-600 hover:bg-amber-700">
+                      <Plus className="h-4 w-4 mr-2" />
+                      Upload Invoice
+                    </Button>
+                  </Link>
+                </>
+              )}
             </div>
           )}
         </CardContent>

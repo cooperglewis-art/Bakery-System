@@ -271,6 +271,7 @@ export interface Database {
           ocr_raw_text: string | null;
           ocr_confidence: number | null;
           status: "pending" | "processed" | "verified";
+          due_date: string | null;
           created_by: string | null;
           created_at: string;
           updated_at: string;
@@ -285,6 +286,7 @@ export interface Database {
           ocr_raw_text?: string | null;
           ocr_confidence?: number | null;
           status?: "pending" | "processed" | "verified";
+          due_date?: string | null;
           created_by?: string | null;
           created_at?: string;
           updated_at?: string;
@@ -299,6 +301,7 @@ export interface Database {
           ocr_raw_text?: string | null;
           ocr_confidence?: number | null;
           status?: "pending" | "processed" | "verified";
+          due_date?: string | null;
           created_by?: string | null;
           created_at?: string;
           updated_at?: string;
