@@ -317,8 +317,8 @@ CREATE OR REPLACE FUNCTION search_orders(
 RETURNS TABLE (
   id UUID,
   order_number INT,
-  status order_status,
-  source order_source,
+  status TEXT,
+  source TEXT,
   delivery_date DATE,
   delivery_time_slot TEXT,
   total NUMERIC,
@@ -356,7 +356,7 @@ BEGIN
     WHERE oi.order_id = o.id
   ) oi_agg ON true
   WHERE
-    (status_filter IS NULL OR o.status = status_filter::order_status)
+    (status_filter IS NULL OR o.status = status_filter)
     AND (date_filter IS NULL OR o.delivery_date = date_filter)
     AND (
       search_term IS NULL
