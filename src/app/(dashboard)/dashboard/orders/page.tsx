@@ -21,6 +21,7 @@ import {
 import { Plus, Search, Filter } from "lucide-react";
 import Link from "next/link";
 import { format } from "date-fns";
+import { OrdersPagination } from "@/components/orders/orders-pagination";
 import type { Order } from "@/types/database";
 
 type OrderWithRelations = Order & {
@@ -32,7 +33,10 @@ interface SearchParams {
   status?: string;
   search?: string;
   date?: string;
+  page?: string;
 }
+
+const PAGE_SIZE = 25;
 
 export default async function OrdersPage({
   searchParams,
@@ -41,15 +45,31 @@ export default async function OrdersPage({
 }) {
   const params = await searchParams;
   const supabase = await createClient();
+  const currentPage = Math.max(1, parseInt(params.page || "1"));
+  const offset = (currentPage - 1) * PAGE_SIZE;
+
+  // If searching, find matching customer IDs first
+  let customerIds: string[] | null = null;
+  if (params.search) {
+    const { data: matchingCustomers } = await supabase
+      .from("customers")
+      .select("id")
+      .or(`name.ilike.%${params.search}%,phone.ilike.%${params.search}%`);
+
+    customerIds = matchingCustomers?.map((c) => c.id) || [];
+  }
 
   // Build query
   let query = supabase
     .from("orders")
-    .select(`
+    .select(
+      `
       *,
       customer:customers(name, phone),
       order_items(id, product_name, quantity, unit_price)
-    `)
+    `,
+      { count: "exact" }
+    )
     .order("delivery_date", { ascending: true })
     .order("created_at", { ascending: false });
 
@@ -62,20 +82,25 @@ export default async function OrdersPage({
     query = query.eq("delivery_date", params.date);
   }
 
-  const { data } = await query.limit(100);
-  const orders = (data || []) as OrderWithRelations[];
-
-  // Filter by search term (client-side for now)
-  let filteredOrders = orders;
+  // Apply search: match on order_number OR customer IDs
   if (params.search) {
-    const searchLower = params.search.toLowerCase();
-    filteredOrders = filteredOrders.filter(
-      (order) =>
-        order.customer?.name?.toLowerCase().includes(searchLower) ||
-        order.customer?.phone?.includes(params.search!) ||
-        order.order_number?.toString().includes(params.search!)
-    );
+    const searchTerm = params.search;
+    const orderNumFilter = `order_number.eq.${parseInt(searchTerm) || 0}`;
+
+    if (customerIds && customerIds.length > 0) {
+      query = query.or(
+        `${orderNumFilter},customer_id.in.(${customerIds.join(",")})`
+      );
+    } else {
+      // Only search by order number if no customers match
+      query = query.or(orderNumFilter);
+    }
   }
+
+  const { data, count } = await query.range(offset, offset + PAGE_SIZE - 1);
+  const orders = (data || []) as OrderWithRelations[];
+  const totalCount = count || 0;
+  const totalPages = Math.ceil(totalCount / PAGE_SIZE);
 
   const statusColors: Record<string, string> = {
     pending: "bg-amber-100 text-amber-800",
@@ -111,7 +136,9 @@ export default async function OrdersPage({
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Orders</h1>
-          <p className="text-gray-500">Manage all bakery orders</p>
+          <p className="text-gray-500">
+            {totalCount} total order{totalCount !== 1 ? "s" : ""}
+          </p>
         </div>
         <Link href="/dashboard/orders/new">
           <Button className="bg-amber-600 hover:bg-amber-700">
@@ -180,8 +207,8 @@ export default async function OrdersPage({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredOrders.length > 0 ? (
-                filteredOrders.map((order) => (
+              {orders.length > 0 ? (
+                orders.map((order) => (
                   <TableRow key={order.id} className="cursor-pointer hover:bg-amber-50">
                     <TableCell>
                       <Link
@@ -246,8 +273,8 @@ export default async function OrdersPage({
 
       {/* Orders Cards (Mobile) */}
       <div className="md:hidden space-y-4">
-        {filteredOrders.length > 0 ? (
-          filteredOrders.map((order) => (
+        {orders.length > 0 ? (
+          orders.map((order) => (
             <Link key={order.id} href={`/dashboard/orders/${order.id}`}>
               <Card className="hover:border-amber-300 transition-colors">
                 <CardContent className="pt-4">
@@ -298,6 +325,9 @@ export default async function OrdersPage({
           </Card>
         )}
       </div>
+
+      {/* Pagination */}
+      <OrdersPagination currentPage={currentPage} totalPages={totalPages} />
     </div>
   );
 }

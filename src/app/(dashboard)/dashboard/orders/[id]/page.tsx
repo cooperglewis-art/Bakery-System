@@ -18,6 +18,7 @@ import {
 import Link from "next/link";
 import { format } from "date-fns";
 import { OrderStatusUpdate } from "@/components/orders/order-status-update";
+import { OrderStatusTimeline } from "@/components/orders/order-status-timeline";
 import type { Order, Customer, OrderItem, Profile } from "@/types/database";
 
 type OrderWithRelations = Order & {
@@ -25,6 +26,15 @@ type OrderWithRelations = Order & {
   order_items: OrderItem[];
   created_by_user: Pick<Profile, "full_name"> | null;
 };
+
+interface StatusHistoryEntry {
+  id: string;
+  old_status: string | null;
+  new_status: string;
+  changed_at: string;
+  note: string | null;
+  changed_by_user: { full_name: string } | null;
+}
 
 export default async function OrderDetailPage({
   params,
@@ -34,22 +44,37 @@ export default async function OrderDetailPage({
   const { id } = await params;
   const supabase = await createClient();
 
-  const { data, error } = await supabase
-    .from("orders")
-    .select(`
-      *,
-      customer:customers(*),
-      order_items(*),
-      created_by_user:profiles(full_name)
-    `)
-    .eq("id", id)
-    .single();
+  const [orderRes, historyRes] = await Promise.all([
+    supabase
+      .from("orders")
+      .select(`
+        *,
+        customer:customers(*),
+        order_items(*),
+        created_by_user:profiles(full_name)
+      `)
+      .eq("id", id)
+      .single(),
+    supabase
+      .from("order_status_history")
+      .select(`
+        id,
+        old_status,
+        new_status,
+        changed_at,
+        note,
+        changed_by_user:profiles(full_name)
+      `)
+      .eq("order_id", id)
+      .order("changed_at", { ascending: false }),
+  ]);
 
-  if (error || !data) {
+  if (orderRes.error || !orderRes.data) {
     notFound();
   }
 
-  const order = data as unknown as OrderWithRelations;
+  const order = orderRes.data as unknown as OrderWithRelations;
+  const statusHistory = (historyRes.data || []) as unknown as StatusHistoryEntry[];
 
   const statusColors: Record<string, string> = {
     pending: "bg-amber-100 text-amber-800 border-amber-300",
@@ -189,6 +214,9 @@ export default async function OrderDetailPage({
               </CardContent>
             </Card>
           )}
+
+          {/* Status Timeline */}
+          <OrderStatusTimeline history={statusHistory} />
         </div>
 
         {/* Sidebar */}

@@ -257,3 +257,49 @@ CREATE TRIGGER update_orders_updated_at BEFORE UPDATE ON orders
 
 CREATE TRIGGER update_invoices_updated_at BEFORE UPDATE ON invoices
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+-- Order status history (audit log)
+CREATE TABLE order_status_history (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  order_id UUID NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
+  old_status TEXT,
+  new_status TEXT NOT NULL,
+  changed_by UUID REFERENCES profiles(id) ON DELETE SET NULL,
+  changed_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  note TEXT
+);
+
+CREATE INDEX idx_order_status_history_order ON order_status_history(order_id);
+CREATE INDEX idx_order_status_history_changed_at ON order_status_history(changed_at);
+
+ALTER TABLE order_status_history ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Authenticated users can manage order_status_history" ON order_status_history
+  FOR ALL TO authenticated USING (true) WITH CHECK (true);
+
+-- Additional indexes for forecasting
+CREATE INDEX idx_invoice_items_invoice ON invoice_items(invoice_id);
+CREATE INDEX idx_ingredient_usage_ingredient ON ingredient_usage_daily(ingredient_id);
+
+-- Function to populate ingredient usage from orders
+CREATE OR REPLACE FUNCTION populate_ingredient_usage(target_date DATE)
+RETURNS void AS $$
+BEGIN
+  INSERT INTO ingredient_usage_daily (ingredient_id, usage_date, quantity_used, order_count)
+  SELECT
+    pi.ingredient_id,
+    target_date,
+    SUM(oi.quantity * pi.quantity),
+    COUNT(DISTINCT o.id)
+  FROM orders o
+  JOIN order_items oi ON oi.order_id = o.id
+  JOIN product_ingredients pi ON pi.product_id = oi.product_id
+  WHERE o.delivery_date = target_date
+    AND o.status NOT IN ('cancelled')
+  GROUP BY pi.ingredient_id
+  ON CONFLICT (ingredient_id, usage_date)
+  DO UPDATE SET
+    quantity_used = EXCLUDED.quantity_used,
+    order_count = EXCLUDED.order_count;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;

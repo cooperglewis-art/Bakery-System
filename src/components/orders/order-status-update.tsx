@@ -86,6 +86,22 @@ export function OrderStatusUpdate({ orderId, currentStatus }: OrderStatusUpdateP
 
       if (error) throw error;
 
+      // Record status change in history (non-blocking)
+      const { data: { user } } = await supabase.auth.getUser();
+      supabase
+        .from("order_status_history")
+        .insert({
+          order_id: orderId,
+          old_status: currentStatus,
+          new_status: newStatus,
+          changed_by: user?.id || null,
+        })
+        .then(({ error: historyError }) => {
+          if (historyError) {
+            console.error("Failed to record status history:", historyError);
+          }
+        });
+
       toast.success(`Order status updated to ${newStatus.replace("_", " ")}`);
       router.refresh();
     } catch (error) {
@@ -97,22 +113,18 @@ export function OrderStatusUpdate({ orderId, currentStatus }: OrderStatusUpdateP
     }
   };
 
-  // Determine which statuses to show based on current status
   const getNextStatuses = () => {
     const statusOrder = ["pending", "confirmed", "in_progress", "ready", "completed"];
     const currentIndex = statusOrder.indexOf(currentStatus);
 
     if (currentStatus === "cancelled") {
-      // If cancelled, allow re-opening to pending
       return ["pending"];
     }
 
     if (currentStatus === "completed") {
-      // If completed, no more updates needed
       return [];
     }
 
-    // Show next logical status and cancel option
     const nextStatuses: string[] = [];
     if (currentIndex >= 0 && currentIndex < statusOrder.length - 1) {
       nextStatuses.push(statusOrder[currentIndex + 1]);

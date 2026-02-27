@@ -382,6 +382,35 @@ export interface Database {
           quantity?: number;
         };
       };
+      order_status_history: {
+        Row: {
+          id: string;
+          order_id: string;
+          old_status: string | null;
+          new_status: string;
+          changed_by: string | null;
+          changed_at: string;
+          note: string | null;
+        };
+        Insert: {
+          id?: string;
+          order_id: string;
+          old_status?: string | null;
+          new_status: string;
+          changed_by?: string | null;
+          changed_at?: string;
+          note?: string | null;
+        };
+        Update: {
+          id?: string;
+          order_id?: string;
+          old_status?: string | null;
+          new_status?: string;
+          changed_by?: string | null;
+          changed_at?: string;
+          note?: string | null;
+        };
+      };
     };
     Views: {
       [_ in never]: never;
@@ -417,6 +446,7 @@ export type Invoice = Tables<"invoices">;
 export type InvoiceItem = Tables<"invoice_items">;
 export type IngredientUsageDaily = Tables<"ingredient_usage_daily">;
 export type ProductIngredient = Tables<"product_ingredients">;
+export type OrderStatusHistory = Tables<"order_status_history">;
 
 // Order with related data
 export type OrderWithItems = Order & {
