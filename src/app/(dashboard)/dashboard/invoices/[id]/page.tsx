@@ -48,14 +48,19 @@ export default async function InvoiceDetailPage({
     "id" | "name" | "unit"
   >[];
 
-  // Generate a signed URL for the invoice image if it exists
+  // Generate a signed URL for the invoice file if it exists
   let signedImageUrl: string | null = null;
+  let fileType: "image" | "pdf" = "image";
   if (invoice.image_url) {
     // Extract the storage path from the public URL
     const urlParts = invoice.image_url.split("/invoices/");
     const storagePath = urlParts.length > 1 ? urlParts[urlParts.length - 1] : null;
 
     if (storagePath) {
+      if (storagePath.toLowerCase().endsWith(".pdf")) {
+        fileType = "pdf";
+      }
+
       const { data: signedData } = await supabase.storage
         .from("invoices")
         .createSignedUrl(storagePath, 3600); // 1 hour expiry
@@ -72,6 +77,7 @@ export default async function InvoiceDetailPage({
       items={invoice.invoice_items}
       ingredients={ingredients}
       signedImageUrl={signedImageUrl}
+      fileType={fileType}
     />
   );
 }

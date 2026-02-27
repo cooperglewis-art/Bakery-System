@@ -55,6 +55,7 @@ interface InvoiceVerifyClientProps {
   items: InvoiceItemWithIngredient[];
   ingredients: IngredientOption[];
   signedImageUrl: string | null;
+  fileType?: "image" | "pdf";
 }
 
 export function InvoiceVerifyClient({
@@ -62,6 +63,7 @@ export function InvoiceVerifyClient({
   items,
   ingredients,
   signedImageUrl,
+  fileType = "image",
 }: InvoiceVerifyClientProps) {
   const router = useRouter();
   const supabase = createClient();
@@ -277,11 +279,19 @@ export function InvoiceVerifyClient({
           <CardContent>
             {signedImageUrl ? (
               <div className="rounded-lg border overflow-hidden bg-gray-50">
-                <img
-                  src={signedImageUrl}
-                  alt={`Invoice from ${invoice.supplier_name}`}
-                  className="w-full h-auto object-contain max-h-[600px]"
-                />
+                {fileType === "pdf" ? (
+                  <iframe
+                    src={signedImageUrl}
+                    title={`Invoice from ${invoice.supplier_name}`}
+                    className="w-full h-[600px]"
+                  />
+                ) : (
+                  <img
+                    src={signedImageUrl}
+                    alt={`Invoice from ${invoice.supplier_name}`}
+                    className="w-full h-auto object-contain max-h-[600px]"
+                  />
+                )}
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center py-16 text-gray-400 border rounded-lg bg-gray-50">

@@ -18,6 +18,7 @@ import {
   Sparkles,
   Save,
   ImageIcon,
+  FileText,
   X,
 } from "lucide-react";
 import Link from "next/link";
@@ -47,19 +48,29 @@ export default function NewInvoicePage() {
   // Save state
   const [isSaving, setIsSaving] = useState(false);
 
+  const isPDF = file?.type === "application/pdf";
+
   const handleFile = useCallback((selectedFile: File) => {
-    if (!selectedFile.type.startsWith("image/")) {
-      toast.error("Please select an image file");
+    const isImage = selectedFile.type.startsWith("image/");
+    const isPdf = selectedFile.type === "application/pdf";
+
+    if (!isImage && !isPdf) {
+      toast.error("Please select an image or PDF file");
       return;
     }
 
     setFile(selectedFile);
 
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      setPreview(e.target?.result as string);
-    };
-    reader.readAsDataURL(selectedFile);
+    if (isImage) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setPreview(e.target?.result as string);
+      };
+      reader.readAsDataURL(selectedFile);
+    } else {
+      // For PDFs, use a placeholder preview
+      setPreview("pdf");
+    }
 
     // Reset OCR state when new file is selected
     setOcrComplete(false);
@@ -252,7 +263,7 @@ export default function NewInvoicePage() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Upload className="h-5 w-5" />
-            Invoice Image
+            Invoice File
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -269,12 +280,12 @@ export default function NewInvoicePage() {
             >
               <ImageIcon className="h-12 w-12 mx-auto text-gray-400" />
               <p className="mt-4 text-gray-600">
-                Drag and drop an invoice image here, or
+                Drag and drop an invoice image or PDF here, or
               </p>
               <label className="mt-3 inline-block">
                 <input
                   type="file"
-                  accept="image/*"
+                  accept="image/*,.pdf,application/pdf"
                   className="hidden"
                   onChange={(e) => {
                     const f = e.target.files?.[0];
@@ -287,17 +298,27 @@ export default function NewInvoicePage() {
                 </span>
               </label>
               <p className="mt-2 text-xs text-gray-400">
-                Supports JPEG, PNG, WebP, GIF
+                Supports JPEG, PNG, WebP, GIF, and PDF
               </p>
             </div>
           ) : (
             <div className="space-y-4">
               <div className="relative inline-block">
-                <img
-                  src={preview}
-                  alt="Invoice preview"
-                  className="max-h-64 rounded-lg border object-contain"
-                />
+                {isPDF ? (
+                  <div className="flex items-center gap-3 p-4 rounded-lg border bg-gray-50">
+                    <FileText className="h-10 w-10 text-red-500" />
+                    <div>
+                      <p className="font-medium">{file?.name}</p>
+                      <p className="text-sm text-gray-500">PDF Document</p>
+                    </div>
+                  </div>
+                ) : (
+                  <img
+                    src={preview!}
+                    alt="Invoice preview"
+                    className="max-h-64 rounded-lg border object-contain"
+                  />
+                )}
                 <Button
                   variant="destructive"
                   size="icon-xs"

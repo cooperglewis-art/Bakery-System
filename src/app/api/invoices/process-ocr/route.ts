@@ -2,6 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { createClient } from "@supabase/supabase-js";
 
+const SUPPORTED_IMAGE_TYPES = [
+  "image/jpeg",
+  "image/png",
+  "image/gif",
+  "image/webp",
+];
+
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
@@ -14,17 +21,20 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const isPDF = file.type === "application/pdf";
+    const isImage = SUPPORTED_IMAGE_TYPES.includes(file.type);
+
+    if (!isPDF && !isImage) {
+      return NextResponse.json(
+        { error: "Unsupported file type. Please upload an image (JPEG, PNG, WebP, GIF) or PDF." },
+        { status: 400 }
+      );
+    }
+
     // Read file as buffer for both storage upload and base64 conversion
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
     const base64 = buffer.toString("base64");
-
-    // Determine media type
-    const mediaType = file.type as
-      | "image/jpeg"
-      | "image/png"
-      | "image/gif"
-      | "image/webp";
 
     // Upload to Supabase Storage using service role key
     const supabaseAdmin = createClient(
@@ -48,13 +58,35 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Get the public URL for the uploaded file
     const storagePath = uploadData.path;
 
-    // Send image to Claude for OCR extraction
+    // Send to Claude for OCR extraction
     const anthropic = new Anthropic({
       apiKey: process.env.ANTHROPIC_API_KEY!,
     });
+
+    // Build the content block based on file type
+    const fileContent: Anthropic.Messages.ContentBlockParam = isPDF
+      ? {
+          type: "document",
+          source: {
+            type: "base64",
+            media_type: "application/pdf",
+            data: base64,
+          },
+        }
+      : {
+          type: "image",
+          source: {
+            type: "base64",
+            media_type: file.type as
+              | "image/jpeg"
+              | "image/png"
+              | "image/gif"
+              | "image/webp",
+            data: base64,
+          },
+        };
 
     const message = await anthropic.messages.create({
       model: "claude-sonnet-4-20250514",
@@ -63,17 +95,10 @@ export async function POST(request: NextRequest) {
         {
           role: "user",
           content: [
-            {
-              type: "image",
-              source: {
-                type: "base64",
-                media_type: mediaType,
-                data: base64,
-              },
-            },
+            fileContent,
             {
               type: "text",
-              text: `Analyze this supplier invoice image and extract the following information. Return ONLY valid JSON with no additional text or markdown formatting.
+              text: `Analyze this supplier invoice and extract the following information. Return ONLY valid JSON with no additional text or markdown formatting.
 
 {
   "supplier_name": "The name of the supplier/vendor",
@@ -110,7 +135,6 @@ Rules:
 
     let extractedData;
     try {
-      // Try to parse JSON directly, handling potential markdown code blocks
       const jsonStr = responseText
         .replace(/```json\n?/g, "")
         .replace(/```\n?/g, "")
