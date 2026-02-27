@@ -56,6 +56,7 @@ CREATE TABLE ingredients (
   unit TEXT NOT NULL,
   unit_cost DECIMAL(10,2),
   supplier TEXT,
+  category TEXT DEFAULT 'Other',
   min_stock_level DECIMAL(10,2),
   current_stock DECIMAL(10,2) DEFAULT 0,
   created_at TIMESTAMPTZ DEFAULT NOW(),

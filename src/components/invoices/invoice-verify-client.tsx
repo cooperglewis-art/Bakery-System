@@ -8,7 +8,9 @@ import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
+  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
@@ -34,6 +36,7 @@ import Link from "next/link";
 import { format } from "date-fns";
 import { toast } from "sonner";
 import type { Invoice, InvoiceItem, Ingredient } from "@/types/database";
+import { INGREDIENT_CATEGORIES } from "@/lib/ingredient-categories";
 
 type InvoiceItemWithIngredient = InvoiceItem & {
   ingredient: Pick<Ingredient, "id" | "name" | "unit"> | null;
@@ -43,6 +46,7 @@ interface IngredientOption {
   id: string;
   name: string;
   unit: string;
+  category: string;
 }
 
 interface ItemMatch {
@@ -476,11 +480,22 @@ export function InvoiceVerifyClient({
                                 <SelectItem value="none">
                                   -- No match --
                                 </SelectItem>
-                                {ingredients.map((ing) => (
-                                  <SelectItem key={ing.id} value={ing.id}>
-                                    {ing.name} ({ing.unit})
-                                  </SelectItem>
-                                ))}
+                                {INGREDIENT_CATEGORIES.map((category) => {
+                                  const categoryIngredients = ingredients.filter(
+                                    (ing) => (ing.category || "Other") === category
+                                  );
+                                  if (categoryIngredients.length === 0) return null;
+                                  return (
+                                    <SelectGroup key={category}>
+                                      <SelectLabel>{category}</SelectLabel>
+                                      {categoryIngredients.map((ing) => (
+                                        <SelectItem key={ing.id} value={ing.id}>
+                                          {ing.name} ({ing.unit})
+                                        </SelectItem>
+                                      ))}
+                                    </SelectGroup>
+                                  );
+                                })}
                               </SelectContent>
                             </Select>
                             {suggested && !item.ingredient_id && (

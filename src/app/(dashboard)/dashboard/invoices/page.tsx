@@ -11,21 +11,59 @@ import {
 } from "@/components/ui/table";
 import { InvoiceStatusBadge } from "@/components/invoices/invoice-status-badge";
 import { InvoiceDeleteButton } from "@/components/invoices/invoice-delete-button";
-import { FileText, Plus, Receipt } from "lucide-react";
+import { CheckCircle, ClipboardCheck, FileText, Plus, Receipt } from "lucide-react";
 import Link from "next/link";
-import { format } from "date-fns";
+import {
+  format,
+  startOfWeek,
+  endOfWeek,
+  startOfMonth,
+  endOfMonth,
+  subMonths,
+} from "date-fns";
+import { InvoiceDateFilter } from "./invoice-date-filter";
 import type { Invoice } from "@/types/database";
 
 type InvoiceWithCount = Invoice & {
   invoice_items: { count: number }[];
 };
 
+function getDateRange(period: string): { from: string; to: string } | null {
+  const now = new Date();
+  switch (period) {
+    case "this_week":
+      return {
+        from: format(startOfWeek(now, { weekStartsOn: 0 }), "yyyy-MM-dd"),
+        to: format(endOfWeek(now, { weekStartsOn: 0 }), "yyyy-MM-dd"),
+      };
+    case "this_month":
+      return {
+        from: format(startOfMonth(now), "yyyy-MM-dd"),
+        to: format(endOfMonth(now), "yyyy-MM-dd"),
+      };
+    case "last_month": {
+      const lastMonth = subMonths(now, 1);
+      return {
+        from: format(startOfMonth(lastMonth), "yyyy-MM-dd"),
+        to: format(endOfMonth(lastMonth), "yyyy-MM-dd"),
+      };
+    }
+    default:
+      return null;
+  }
+}
+
 export default async function InvoicesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ status?: string }>;
+  searchParams: Promise<{
+    status?: string;
+    period?: string;
+    dateFrom?: string;
+    dateTo?: string;
+  }>;
 }) {
-  const { status: statusFilter } = await searchParams;
+  const { status: statusFilter, period, dateFrom, dateTo } = await searchParams;
   const supabase = await createClient();
 
   let query = supabase
@@ -37,15 +75,46 @@ export default async function InvoicesPage({
     query = query.eq("status", statusFilter);
   }
 
+  // Apply date filtering
+  const dateRange = period ? getDateRange(period) : null;
+  const effectiveFrom = dateRange?.from || dateFrom;
+  const effectiveTo = dateRange?.to || dateTo;
+
+  if (effectiveFrom) {
+    query = query.gte("invoice_date", effectiveFrom);
+  }
+  if (effectiveTo) {
+    query = query.lte("invoice_date", effectiveTo);
+  }
+
   const { data: invoicesData } = await query;
   const invoices = (invoicesData || []) as unknown as InvoiceWithCount[];
 
   const activeFilter = statusFilter || "all";
+  const activePeriod = period || (dateFrom || dateTo ? "custom" : "all_time");
 
-  const filterOptions = [
+  const statusOptions = [
     { value: "all", label: "All" },
     { value: "processed", label: "Processed" },
     { value: "verified", label: "Verified" },
+  ];
+
+  function buildUrl(params: Record<string, string | undefined>) {
+    const sp = new URLSearchParams();
+    for (const [key, value] of Object.entries(params)) {
+      if (value && value !== "all" && value !== "all_time") {
+        sp.set(key, value);
+      }
+    }
+    const qs = sp.toString();
+    return `/dashboard/invoices${qs ? `?${qs}` : ""}`;
+  }
+
+  const periodOptions = [
+    { value: "all_time", label: "All Time" },
+    { value: "this_week", label: "This Week" },
+    { value: "this_month", label: "This Month" },
+    { value: "last_month", label: "Last Month" },
   ];
 
   return (
@@ -66,30 +135,67 @@ export default async function InvoicesPage({
         </Link>
       </div>
 
-      {/* Status Filter */}
-      <div className="flex gap-2">
-        {filterOptions.map((option) => (
-          <Link
-            key={option.value}
-            href={
-              option.value === "all"
-                ? "/dashboard/invoices"
-                : `/dashboard/invoices?status=${option.value}`
-            }
-          >
-            <Button
-              variant={activeFilter === option.value ? "default" : "outline"}
-              size="sm"
-              className={
-                activeFilter === option.value
-                  ? "bg-amber-600 hover:bg-amber-700"
-                  : ""
-              }
+      {/* Filters */}
+      <div className="space-y-3">
+        {/* Status Filter */}
+        <div className="flex items-center gap-2">
+          <span className="text-sm font-medium text-gray-700 mr-1">Status:</span>
+          {statusOptions.map((option) => (
+            <Link
+              key={option.value}
+              href={buildUrl({
+                status: option.value,
+                period: activePeriod !== "all_time" && activePeriod !== "custom" ? period : undefined,
+                dateFrom: activePeriod === "custom" ? dateFrom : undefined,
+                dateTo: activePeriod === "custom" ? dateTo : undefined,
+              })}
             >
-              {option.label}
-            </Button>
-          </Link>
-        ))}
+              <Button
+                variant={activeFilter === option.value ? "default" : "outline"}
+                size="sm"
+                className={
+                  activeFilter === option.value
+                    ? "bg-amber-600 hover:bg-amber-700"
+                    : ""
+                }
+              >
+                {option.label}
+              </Button>
+            </Link>
+          ))}
+        </div>
+
+        {/* Date Filter */}
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-sm font-medium text-gray-700 mr-1">Period:</span>
+          {periodOptions.map((option) => (
+            <Link
+              key={option.value}
+              href={buildUrl({
+                status: activeFilter,
+                period: option.value !== "all_time" ? option.value : undefined,
+              })}
+            >
+              <Button
+                variant={activePeriod === option.value ? "default" : "outline"}
+                size="sm"
+                className={
+                  activePeriod === option.value
+                    ? "bg-amber-600 hover:bg-amber-700"
+                    : ""
+                }
+              >
+                {option.label}
+              </Button>
+            </Link>
+          ))}
+          <InvoiceDateFilter
+            activeStatus={activeFilter}
+            activePeriod={activePeriod}
+            dateFrom={dateFrom}
+            dateTo={dateTo}
+          />
+        </div>
       </div>
 
       {/* Invoices Table */}
@@ -114,7 +220,7 @@ export default async function InvoicesPage({
                   <TableHead>Total</TableHead>
                   <TableHead>Items</TableHead>
                   <TableHead>Status</TableHead>
-                  <TableHead className="w-10"></TableHead>
+                  <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -150,10 +256,29 @@ export default async function InvoicesPage({
                         <InvoiceStatusBadge status={invoice.status} />
                       </TableCell>
                       <TableCell>
-                        <InvoiceDeleteButton
-                          invoiceId={invoice.id}
-                          supplierName={invoice.supplier_name}
-                        />
+                        <div className="flex items-center gap-1">
+                          {invoice.status === "processed" && (
+                            <Link href={`/dashboard/invoices/${invoice.id}`}>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="text-green-600 hover:text-green-700 hover:bg-green-50"
+                                title="Verify invoice"
+                              >
+                                <ClipboardCheck className="h-4 w-4" />
+                              </Button>
+                            </Link>
+                          )}
+                          {invoice.status === "verified" && (
+                            <span className="flex items-center justify-center w-8 h-8" title="Verified">
+                              <CheckCircle className="h-4 w-4 text-green-600" />
+                            </span>
+                          )}
+                          <InvoiceDeleteButton
+                            invoiceId={invoice.id}
+                            supplierName={invoice.supplier_name}
+                          />
+                        </div>
                       </TableCell>
                     </TableRow>
                   );

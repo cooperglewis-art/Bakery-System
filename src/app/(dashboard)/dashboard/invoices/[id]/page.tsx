@@ -40,12 +40,12 @@ export default async function InvoiceDetailPage({
   // Fetch all ingredients for the matching dropdown
   const { data: ingredientsData } = await supabase
     .from("ingredients")
-    .select("id, name, unit")
+    .select("id, name, unit, category")
     .order("name");
 
   const ingredients = (ingredientsData || []) as Pick<
     Ingredient,
-    "id" | "name" | "unit"
+    "id" | "name" | "unit" | "category"
   >[];
 
   // Generate a signed URL for the invoice file if it exists

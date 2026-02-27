@@ -132,6 +132,7 @@ export interface Database {
           unit: string;
           unit_cost: number | null;
           supplier: string | null;
+          category: string;
           min_stock_level: number | null;
           current_stock: number;
           created_at: string;
@@ -143,6 +144,7 @@ export interface Database {
           unit: string;
           unit_cost?: number | null;
           supplier?: string | null;
+          category?: string;
           min_stock_level?: number | null;
           current_stock?: number;
           created_at?: string;
@@ -154,6 +156,7 @@ export interface Database {
           unit?: string;
           unit_cost?: number | null;
           supplier?: string | null;
+          category?: string;
           min_stock_level?: number | null;
           current_stock?: number;
           created_at?: string;
