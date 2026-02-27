@@ -71,7 +71,7 @@ export default async function InvoicesPage({
   const supabase = await createClient();
 
   // Sorting
-  const sortColumn = sort === "date" ? "invoice_date" : sort === "amount" ? "total_amount" : null;
+  const sortColumn = sort === "date" ? "invoice_date" : sort === "amount" ? "total_amount" : sort === "due_date" ? "due_date" : null;
   const sortAsc = dir === "asc";
 
   let query = supabase
@@ -130,7 +130,7 @@ export default async function InvoicesPage({
     return `/dashboard/invoices${qs ? `?${qs}` : ""}`;
   }
 
-  function sortUrl(column: "date" | "amount") {
+  function sortUrl(column: "date" | "amount" | "due_date") {
     // Toggle: no sort → desc → asc → no sort
     let newDir: string | undefined;
     if (sort === column) {
@@ -148,7 +148,7 @@ export default async function InvoicesPage({
     });
   }
 
-  function SortIcon({ column }: { column: "date" | "amount" }) {
+  function SortIcon({ column }: { column: "date" | "amount" | "due_date" }) {
     if (sort !== column) return <ArrowUpDown className="h-3 w-3 ml-1 opacity-40" />;
     return dir === "asc"
       ? <ArrowUp className="h-3 w-3 ml-1" />
@@ -279,7 +279,11 @@ export default async function InvoicesPage({
                       Date <SortIcon column="date" />
                     </Link>
                   </TableHead>
-                  <TableHead>Due Date</TableHead>
+                  <TableHead className="p-0">
+                    <Link href={sortUrl("due_date")} className="inline-flex items-center gap-1 px-3 py-2 text-inherit no-underline hover:text-gray-900">
+                      Due Date <SortIcon column="due_date" />
+                    </Link>
+                  </TableHead>
                   <TableHead className="p-0">
                     <Link href={sortUrl("amount")} className="inline-flex items-center gap-1 px-3 py-2 text-inherit no-underline hover:text-gray-900">
                       Total <SortIcon column="amount" />
