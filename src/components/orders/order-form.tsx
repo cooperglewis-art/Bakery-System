@@ -37,6 +37,7 @@ import {
   Loader2,
 } from "lucide-react";
 import type { Customer, Product, Category } from "@/types/database";
+import { TAX_RATE, TAX_RATE_DISPLAY, TIME_SLOTS } from "@/lib/config";
 
 export interface OrderItemData {
   id: string;
@@ -123,7 +124,7 @@ export function OrderForm({
     (sum, item) => sum + item.quantity * item.unitPrice,
     0
   );
-  const tax = subtotal * 0.075;
+  const tax = subtotal * TAX_RATE;
   const total = subtotal + tax;
 
   const handleSelectCustomer = (customer: Customer) => {
@@ -339,15 +340,11 @@ export function OrderForm({
                   <SelectValue placeholder="Select time" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="morning">
-                    Morning (8am-12pm)
-                  </SelectItem>
-                  <SelectItem value="afternoon">
-                    Afternoon (12pm-4pm)
-                  </SelectItem>
-                  <SelectItem value="evening">
-                    Evening (4pm-7pm)
-                  </SelectItem>
+                  {TIME_SLOTS.map((slot) => (
+                    <SelectItem key={slot.value} value={slot.value}>
+                      {slot.label}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -553,7 +550,7 @@ export function OrderForm({
               <span>${subtotal.toFixed(2)}</span>
             </div>
             <div className="flex justify-between text-gray-500">
-              <span>Tax (7.5%)</span>
+              <span>Tax ({TAX_RATE_DISPLAY})</span>
               <span>${tax.toFixed(2)}</span>
             </div>
             <div className="flex justify-between text-lg font-bold border-t pt-2">

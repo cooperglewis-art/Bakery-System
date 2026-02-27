@@ -19,6 +19,7 @@ import Link from "next/link";
 import { format } from "date-fns";
 import { OrderStatusUpdate } from "@/components/orders/order-status-update";
 import { OrderStatusTimeline } from "@/components/orders/order-status-timeline";
+import { getTimeSlotLabel } from "@/lib/config";
 import type { Order, Customer, OrderItem, Profile } from "@/types/database";
 
 type OrderWithRelations = Order & {
@@ -287,9 +288,7 @@ export default async function OrderDetailPage({
                 <div className="flex items-center gap-2">
                   <Clock className="h-4 w-4 text-gray-500" />
                   <span className="capitalize">
-                    {order.delivery_time_slot === "morning" && "Morning (8am-12pm)"}
-                    {order.delivery_time_slot === "afternoon" && "Afternoon (12pm-4pm)"}
-                    {order.delivery_time_slot === "evening" && "Evening (4pm-7pm)"}
+                    {getTimeSlotLabel(order.delivery_time_slot)}
                   </span>
                 </div>
               )}

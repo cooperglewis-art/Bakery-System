@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { format, parseISO } from "date-fns";
 import { OrderForm, type OrderFormData } from "@/components/orders/order-form";
 import type { Order, Customer, OrderItem, Product, Category } from "@/types/database";
+import { TAX_RATE } from "@/lib/config";
 
 type OrderWithItems = Order & {
   customer: Customer | null;
@@ -65,7 +66,7 @@ export function EditOrderClient({
         (sum, item) => sum + item.quantity * item.unitPrice,
         0
       );
-      const tax = subtotal * 0.075;
+      const tax = subtotal * TAX_RATE;
       const total = subtotal + tax;
 
       const { error: orderError } = await supabase
