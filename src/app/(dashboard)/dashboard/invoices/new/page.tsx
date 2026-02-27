@@ -145,7 +145,7 @@ export default function NewInvoicePage() {
           total_amount: data.total || null,
           image_url: imageUrl,
           ocr_confidence: data.confidence || null,
-          status: data.line_items?.length > 0 ? "processed" : "pending",
+          status: "processed" as const,
         } as never)
         .select()
         .single();

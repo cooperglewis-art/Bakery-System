@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -28,6 +27,8 @@ import {
   Loader2,
   FileText,
   Package,
+  Trash2,
+  RotateCcw,
 } from "lucide-react";
 import Link from "next/link";
 import { format } from "date-fns";
@@ -70,7 +71,6 @@ export function InvoiceVerifyClient({
 
   const isVerified = invoice.status === "verified";
 
-  // Editable items state (only used when not verified)
   const [editableItems, setEditableItems] = useState(
     items.map((item) => ({
       id: item.id,
@@ -88,10 +88,10 @@ export function InvoiceVerifyClient({
   >({});
   const [isLoadingMatches, setIsLoadingMatches] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [isTogglingStatus, setIsTogglingStatus] = useState(false);
 
-  // Auto-suggest ingredient matches on load
   const loadMatches = useCallback(async () => {
-    // Only auto-match items that don't already have a match
     const unmatchedDescriptions = items
       .filter((item) => !item.ingredient_id && !item.ingredient)
       .map((item) => item.description);
@@ -124,7 +124,6 @@ export function InvoiceVerifyClient({
 
       setSuggestedMatches(matchMap);
 
-      // Auto-apply high-confidence matches
       setEditableItems((prev) =>
         prev.map((item) => {
           if (!item.ingredient_id && matchMap[item.description]) {
@@ -163,7 +162,6 @@ export function InvoiceVerifyClient({
     setIsVerifying(true);
 
     try {
-      // Update each invoice item with the matched ingredient
       for (const item of editableItems) {
         if (item.ingredient_id) {
           const { error: itemError } = await supabase
@@ -178,7 +176,6 @@ export function InvoiceVerifyClient({
             console.error("Failed to update item:", itemError);
           }
 
-          // Update ingredient cost_per_unit (unit_cost)
           if (item.unit_cost > 0) {
             const { error: ingredientError } = await supabase
               .from("ingredients")
@@ -194,7 +191,6 @@ export function InvoiceVerifyClient({
         }
       }
 
-      // Update invoice status to verified
       const { error: invoiceError } = await supabase
         .from("invoices")
         .update({ status: "verified" } as never)
@@ -204,16 +200,60 @@ export function InvoiceVerifyClient({
         throw new Error(invoiceError.message);
       }
 
-      toast.success("Invoice verified successfully");
+      toast.success("Invoice verified");
       router.refresh();
     } catch (error) {
       console.error("Verify error:", error);
-      toast.error("Failed to verify invoice", {
-        description:
-          error instanceof Error ? error.message : "Please try again",
-      });
+      toast.error("Failed to verify invoice");
     } finally {
       setIsVerifying(false);
+    }
+  };
+
+  const toggleStatus = async () => {
+    const newStatus = isVerified ? "processed" : "verified";
+    setIsTogglingStatus(true);
+
+    try {
+      const { error } = await supabase
+        .from("invoices")
+        .update({ status: newStatus } as never)
+        .eq("id", invoice.id);
+
+      if (error) throw error;
+
+      toast.success(`Invoice marked as ${newStatus}`);
+      router.refresh();
+    } catch (error) {
+      console.error("Status toggle error:", error);
+      toast.error("Failed to update status");
+    } finally {
+      setIsTogglingStatus(false);
+    }
+  };
+
+  const deleteInvoice = async () => {
+    if (!confirm(`Delete this invoice from ${invoice.supplier_name}? This cannot be undone.`)) {
+      return;
+    }
+
+    setIsDeleting(true);
+
+    try {
+      const { error } = await supabase
+        .from("invoices")
+        .delete()
+        .eq("id", invoice.id);
+
+      if (error) throw error;
+
+      toast.success("Invoice deleted");
+      router.push("/dashboard/invoices");
+    } catch (error) {
+      console.error("Delete error:", error);
+      toast.error("Failed to delete invoice");
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -245,30 +285,54 @@ export function InvoiceVerifyClient({
           </div>
         </div>
 
-        {!isVerified && (
-          <Button
-            onClick={verifyInvoice}
-            disabled={isVerifying}
-            className="bg-green-600 hover:bg-green-700"
-          >
-            {isVerifying ? (
-              <>
+        <div className="flex items-center gap-2">
+          {isVerified ? (
+            <Button
+              variant="outline"
+              onClick={toggleStatus}
+              disabled={isTogglingStatus}
+            >
+              {isTogglingStatus ? (
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                Verifying...
-              </>
-            ) : (
-              <>
+              ) : (
+                <RotateCcw className="h-4 w-4 mr-2" />
+              )}
+              Mark as Processed
+            </Button>
+          ) : (
+            <Button
+              onClick={verifyInvoice}
+              disabled={isVerifying}
+              className="bg-green-600 hover:bg-green-700"
+            >
+              {isVerifying ? (
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              ) : (
                 <CheckCircle className="h-4 w-4 mr-2" />
-                Verify Invoice
-              </>
+              )}
+              Verify Invoice
+            </Button>
+          )}
+
+          <Button
+            variant="outline"
+            onClick={deleteInvoice}
+            disabled={isDeleting}
+            className="text-red-600 hover:text-red-700 hover:bg-red-50"
+          >
+            {isDeleting ? (
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+            ) : (
+              <Trash2 className="h-4 w-4 mr-2" />
             )}
+            Delete
           </Button>
-        )}
+        </div>
       </div>
 
       {/* Side-by-side layout */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Left: Original Invoice Image */}
+        {/* Left: Original Invoice */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -315,7 +379,6 @@ export function InvoiceVerifyClient({
           </CardHeader>
           <CardContent>
             {isVerified ? (
-              // Read-only view for verified invoices
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -361,7 +424,6 @@ export function InvoiceVerifyClient({
                 </TableBody>
               </Table>
             ) : (
-              // Editable view for non-verified invoices
               <Table>
                 <TableHeader>
                   <TableRow>

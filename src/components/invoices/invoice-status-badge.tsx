@@ -2,8 +2,8 @@ import { Badge } from "@/components/ui/badge";
 
 const statusConfig: Record<string, { label: string; className: string }> = {
   pending: {
-    label: "Pending",
-    className: "bg-amber-100 text-amber-800 border-amber-300",
+    label: "Processed",
+    className: "bg-blue-100 text-blue-800 border-blue-300",
   },
   processed: {
     label: "Processed",
@@ -16,11 +16,11 @@ const statusConfig: Record<string, { label: string; className: string }> = {
 };
 
 interface InvoiceStatusBadgeProps {
-  status: "pending" | "processed" | "verified";
+  status: string;
 }
 
 export function InvoiceStatusBadge({ status }: InvoiceStatusBadgeProps) {
-  const config = statusConfig[status] || statusConfig.pending;
+  const config = statusConfig[status] || statusConfig.processed;
 
   return (
     <Badge className={`${config.className} border`}>

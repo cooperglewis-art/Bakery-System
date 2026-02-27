@@ -10,6 +10,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { InvoiceStatusBadge } from "@/components/invoices/invoice-status-badge";
+import { InvoiceDeleteButton } from "@/components/invoices/invoice-delete-button";
 import { FileText, Plus, Receipt } from "lucide-react";
 import Link from "next/link";
 import { format } from "date-fns";
@@ -36,14 +37,13 @@ export default async function InvoicesPage({
     query = query.eq("status", statusFilter);
   }
 
-  const { data: invoicesData, error } = await query;
+  const { data: invoicesData } = await query;
   const invoices = (invoicesData || []) as unknown as InvoiceWithCount[];
 
   const activeFilter = statusFilter || "all";
 
   const filterOptions = [
     { value: "all", label: "All" },
-    { value: "pending", label: "Pending" },
     { value: "processed", label: "Processed" },
     { value: "verified", label: "Verified" },
   ];
@@ -114,6 +114,7 @@ export default async function InvoicesPage({
                   <TableHead>Total</TableHead>
                   <TableHead>Items</TableHead>
                   <TableHead>Status</TableHead>
+                  <TableHead className="w-10"></TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -147,6 +148,12 @@ export default async function InvoicesPage({
                       </TableCell>
                       <TableCell>
                         <InvoiceStatusBadge status={invoice.status} />
+                      </TableCell>
+                      <TableCell>
+                        <InvoiceDeleteButton
+                          invoiceId={invoice.id}
+                          supplierName={invoice.supplier_name}
+                        />
                       </TableCell>
                     </TableRow>
                   );
