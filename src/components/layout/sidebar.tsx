@@ -11,6 +11,7 @@ import {
   Wheat,
   Receipt,
   TrendingUp,
+  BarChart3,
   Settings,
   LogOut,
   ChefHat,
@@ -27,6 +28,7 @@ const navigation = [
   { name: "Ingredients", href: "/dashboard/ingredients", icon: Wheat },
   { name: "Invoices", href: "/dashboard/invoices", icon: Receipt },
   { name: "Forecasting", href: "/dashboard/forecasting", icon: TrendingUp },
+  { name: "Analytics", href: "/dashboard/analytics", icon: BarChart3 },
 ];
 
 interface SidebarProps {
