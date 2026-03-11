@@ -15,9 +15,14 @@ import { Plus, Search, Phone, Mail, FileText } from "lucide-react";
 import Link from "next/link";
 import { format } from "date-fns";
 import type { Customer } from "@/types/database";
+import CustomerRowActions from "./customer-row-actions";
+import { PaginationNav } from "@/components/ui/pagination-nav";
+
+const PAGE_SIZE = 25;
 
 interface SearchParams {
   search?: string;
+  page?: string;
 }
 
 export default async function CustomersPage({
@@ -28,9 +33,13 @@ export default async function CustomersPage({
   const params = await searchParams;
   const supabase = await createClient();
 
+  const page = Math.max(1, Number(params.page) || 1);
+  const from = (page - 1) * PAGE_SIZE;
+  const to = from + PAGE_SIZE - 1;
+
   let query = supabase
     .from("customers")
-    .select("*")
+    .select("*", { count: "exact" })
     .order("name");
 
   if (params.search) {
@@ -39,8 +48,10 @@ export default async function CustomersPage({
     );
   }
 
-  const { data } = await query.limit(100);
+  const { data, count } = await query.range(from, to);
   const customers = data as Customer[] | null;
+  const totalCount = count ?? 0;
+  const totalPages = Math.ceil(totalCount / PAGE_SIZE);
 
   return (
     <div className="p-4 md:p-6 space-y-6">
@@ -89,6 +100,7 @@ export default async function CustomersPage({
                 <TableHead>Orders</TableHead>
                 <TableHead>Notes</TableHead>
                 <TableHead>Added</TableHead>
+                <TableHead className="w-[50px]"></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -134,11 +146,17 @@ export default async function CustomersPage({
                     <TableCell className="text-gray-500 text-sm">
                       {format(new Date(customer.created_at), "MMM d, yyyy")}
                     </TableCell>
+                    <TableCell>
+                      <CustomerRowActions
+                        customerId={customer.id}
+                        customerName={customer.name}
+                      />
+                    </TableCell>
                   </TableRow>
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center py-12 text-gray-500">
+                  <TableCell colSpan={6} className="text-center py-12 text-gray-500">
                     No customers found
                   </TableCell>
                 </TableRow>
@@ -193,6 +211,16 @@ export default async function CustomersPage({
           </Card>
         )}
       </div>
+
+      {/* Pagination */}
+      <PaginationNav
+        currentPage={page}
+        totalPages={totalPages}
+        totalItems={totalCount}
+        itemLabel="customers"
+        basePath="/dashboard/customers"
+        searchParams={{ search: params.search }}
+      />
     </div>
   );
 }

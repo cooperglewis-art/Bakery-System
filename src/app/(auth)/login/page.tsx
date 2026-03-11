@@ -10,6 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ChefHat, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import Link from "next/link";
 
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
@@ -111,6 +112,14 @@ export default function LoginPage() {
                     required
                     disabled={isLoading}
                   />
+                </div>
+                <div className="flex justify-end">
+                  <Link
+                    href="/forgot-password"
+                    className="text-sm text-amber-600 hover:underline"
+                  >
+                    Forgot password?
+                  </Link>
                 </div>
                 <Button
                   type="submit"

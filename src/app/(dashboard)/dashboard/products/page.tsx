@@ -15,12 +15,17 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Plus, Search, Package, Tag } from "lucide-react";
 import Link from "next/link";
 import type { Category, Product } from "@/types/database";
+import { ProductRowActions } from "./product-row-actions";
+import { PaginationNav } from "@/components/ui/pagination-nav";
 
 type ProductWithCategory = Product & { category: Category | null };
+
+const PAGE_SIZE = 25;
 
 interface SearchParams {
   search?: string;
   category?: string;
+  page?: string;
 }
 
 export default async function ProductsPage({
@@ -31,6 +36,10 @@ export default async function ProductsPage({
   const params = await searchParams;
   const supabase = await createClient();
 
+  const page = Math.max(1, Number(params.page) || 1);
+  const from = (page - 1) * PAGE_SIZE;
+  const to = from + PAGE_SIZE - 1;
+
   // Fetch categories
   const { data: categoriesData } = await supabase
     .from("categories")
@@ -38,10 +47,10 @@ export default async function ProductsPage({
     .order("display_order");
   const categories = categoriesData as Category[] | null;
 
-  // Fetch products
+  // Fetch products with pagination
   let query = supabase
     .from("products")
-    .select("*, category:categories(*)")
+    .select("*, category:categories(*)", { count: "exact" })
     .order("name");
 
   if (params.search) {
@@ -52,8 +61,10 @@ export default async function ProductsPage({
     query = query.eq("category_id", params.category);
   }
 
-  const { data: productsData } = await query;
+  const { data: productsData, count } = await query.range(from, to);
   const products = productsData as ProductWithCategory[] | null;
+  const totalCount = count ?? 0;
+  const totalPages = Math.ceil(totalCount / PAGE_SIZE);
 
   return (
     <div className="p-4 md:p-6 space-y-6">
@@ -128,6 +139,7 @@ export default async function ProductsPage({
                     <TableHead>Price</TableHead>
                     <TableHead>Prep Time</TableHead>
                     <TableHead>Status</TableHead>
+                    <TableHead className="w-[50px]"></TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -171,11 +183,17 @@ export default async function ProductsPage({
                             {product.is_active ? "Active" : "Inactive"}
                           </Badge>
                         </TableCell>
+                        <TableCell>
+                          <ProductRowActions
+                            productId={product.id}
+                            productName={product.name}
+                          />
+                        </TableCell>
                       </TableRow>
                     ))
                   ) : (
                     <TableRow>
-                      <TableCell colSpan={5} className="text-center py-12 text-gray-500">
+                      <TableCell colSpan={6} className="text-center py-12 text-gray-500">
                         No products found
                       </TableCell>
                     </TableRow>
@@ -189,42 +207,46 @@ export default async function ProductsPage({
           <div className="md:hidden space-y-4">
             {products && products.length > 0 ? (
               products.map((product) => (
-                <Link key={product.id} href={`/dashboard/products/${product.id}`}>
-                  <Card className="hover:border-amber-300 transition-colors">
-                    <CardContent className="pt-4">
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2">
-                            <p className="font-semibold text-amber-700">{product.name}</p>
-                            <Badge
-                              className={
-                                product.is_active
-                                  ? "bg-green-100 text-green-800"
-                                  : "bg-gray-100 text-gray-800"
-                              }
-                            >
-                              {product.is_active ? "Active" : "Inactive"}
-                            </Badge>
-                          </div>
-                          {product.category && (
-                            <Badge variant="outline" className="mt-1">
-                              {product.category.name}
-                            </Badge>
-                          )}
-                          {product.description && (
-                            <p className="text-sm text-gray-500 mt-2 line-clamp-2">
-                              {product.description}
-                            </p>
-                          )}
+                <Card key={product.id} className="hover:border-amber-300 transition-colors">
+                  <CardContent className="pt-4">
+                    <div className="flex items-start justify-between">
+                      <Link href={`/dashboard/products/${product.id}`} className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <p className="font-semibold text-amber-700">{product.name}</p>
+                          <Badge
+                            className={
+                              product.is_active
+                                ? "bg-green-100 text-green-800"
+                                : "bg-gray-100 text-gray-800"
+                            }
+                          >
+                            {product.is_active ? "Active" : "Inactive"}
+                          </Badge>
                         </div>
+                        {product.category && (
+                          <Badge variant="outline" className="mt-1">
+                            {product.category.name}
+                          </Badge>
+                        )}
+                        {product.description && (
+                          <p className="text-sm text-gray-500 mt-2 line-clamp-2">
+                            {product.description}
+                          </p>
+                        )}
+                      </Link>
+                      <div className="flex items-start gap-2">
                         <div className="text-right">
                           <p className="font-bold text-lg">${product.base_price.toFixed(2)}</p>
                           <p className="text-sm text-gray-500">{product.prep_time_hours}h prep</p>
                         </div>
+                        <ProductRowActions
+                          productId={product.id}
+                          productName={product.name}
+                        />
                       </div>
-                    </CardContent>
-                  </Card>
-                </Link>
+                    </div>
+                  </CardContent>
+                </Card>
               ))
             ) : (
               <Card>
@@ -237,12 +259,22 @@ export default async function ProductsPage({
         </TabsContent>
       </Tabs>
 
+      {/* Pagination */}
+      <PaginationNav
+        currentPage={page}
+        totalPages={totalPages}
+        totalItems={totalCount}
+        itemLabel="products"
+        basePath="/dashboard/products"
+        searchParams={{ search: params.search, category: params.category }}
+      />
+
       {/* Product Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <Card>
           <CardContent className="pt-6 text-center">
             <Package className="h-8 w-8 mx-auto text-amber-600" />
-            <p className="text-2xl font-bold mt-2">{products?.length || 0}</p>
+            <p className="text-2xl font-bold mt-2">{totalCount}</p>
             <p className="text-sm text-gray-500">Total Products</p>
           </CardContent>
         </Card>

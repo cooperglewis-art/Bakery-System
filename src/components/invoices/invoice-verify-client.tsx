@@ -27,6 +27,7 @@ import { Input } from "@/components/ui/input";
 import {
   ArrowLeft,
   CheckCircle,
+  Download,
   Loader2,
   FileText,
   Package,
@@ -388,32 +389,64 @@ export function InvoiceVerifyClient({
         {/* Left: Original Invoice */}
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <FileText className="h-5 w-5" />
-              Original Invoice
-            </CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center gap-2">
+                <FileText className="h-5 w-5" />
+                Original Invoice
+              </CardTitle>
+              {signedImageUrl && (
+                <a
+                  href={signedImageUrl}
+                  download={`invoice-${invoice.invoice_number || invoice.id}.${fileType === "pdf" ? "pdf" : "jpg"}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Button variant="outline" size="sm">
+                    <Download className="h-4 w-4 mr-2" />
+                    Download
+                  </Button>
+                </a>
+              )}
+            </div>
           </CardHeader>
           <CardContent>
             {signedImageUrl ? (
               <div className="rounded-lg border overflow-hidden bg-gray-50">
                 {fileType === "pdf" ? (
-                  <iframe
-                    src={signedImageUrl}
+                  <object
+                    data={`${signedImageUrl}#toolbar=1&navpanes=0`}
+                    type="application/pdf"
+                    className="w-full h-[700px]"
                     title={`Invoice from ${invoice.supplier_name}`}
-                    className="w-full h-[600px]"
-                  />
+                  >
+                    <div className="flex flex-col items-center justify-center py-16 text-gray-500">
+                      <FileText className="h-16 w-16 text-gray-300" />
+                      <p className="mt-4">PDF preview not available in this browser</p>
+                      <a
+                        href={signedImageUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="mt-3"
+                      >
+                        <Button variant="outline" size="sm">
+                          <Download className="h-4 w-4 mr-2" />
+                          Download PDF
+                        </Button>
+                      </a>
+                    </div>
+                  </object>
                 ) : (
                   <img
                     src={signedImageUrl}
                     alt={`Invoice from ${invoice.supplier_name}`}
-                    className="w-full h-auto object-contain max-h-[600px]"
+                    className="w-full h-auto object-contain max-h-[700px]"
                   />
                 )}
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center py-16 text-gray-400 border rounded-lg bg-gray-50">
                 <FileText className="h-16 w-16" />
-                <p className="mt-4 text-gray-500">No image available</p>
+                <p className="mt-4 text-gray-500">No file available</p>
               </div>
             )}
           </CardContent>

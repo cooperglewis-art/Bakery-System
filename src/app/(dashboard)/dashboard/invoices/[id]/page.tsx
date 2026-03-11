@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { createClient as createAdminClient } from "@supabase/supabase-js";
 import { notFound } from "next/navigation";
 import { InvoiceVerifyClient } from "@/components/invoices/invoice-verify-client";
 import type { Invoice, InvoiceItem, Ingredient } from "@/types/database";
@@ -52,23 +53,39 @@ export default async function InvoiceDetailPage({
   let signedImageUrl: string | null = null;
   let fileType: "image" | "pdf" = "image";
   if (invoice.image_url) {
-    // Extract the storage path from the public URL
-    const urlParts = invoice.image_url.split("/invoices/");
-    const storagePath = urlParts.length > 1 ? urlParts[urlParts.length - 1] : null;
-
-    if (storagePath) {
-      if (storagePath.toLowerCase().endsWith(".pdf")) {
-        fileType = "pdf";
-      }
-
-      const { data: signedData } = await supabase.storage
-        .from("invoices")
-        .createSignedUrl(storagePath, 3600); // 1 hour expiry
-
-      signedImageUrl = signedData?.signedUrl || invoice.image_url;
+    // image_url stores either a bare storage path (e.g. "1234-invoice.pdf")
+    // or a full public URL. Extract the storage path either way.
+    let storagePath: string;
+    if (invoice.image_url.startsWith("http")) {
+      const urlParts = invoice.image_url.split("/invoices/");
+      storagePath = urlParts.length > 1 ? urlParts[urlParts.length - 1] : invoice.image_url;
     } else {
-      signedImageUrl = invoice.image_url;
+      storagePath = invoice.image_url;
     }
+
+    if (storagePath.toLowerCase().endsWith(".pdf")) {
+      fileType = "pdf";
+    }
+
+    console.log("[Invoice Debug] image_url:", invoice.image_url);
+    console.log("[Invoice Debug] storagePath:", storagePath);
+
+    // Use service role client for storage access (files were uploaded with service role)
+    const supabaseAdmin = createAdminClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    );
+
+    const { data: signedData, error: signedError } = await supabaseAdmin.storage
+      .from("invoices")
+      .createSignedUrl(storagePath, 3600); // 1 hour expiry
+
+    console.log("[Invoice Debug] signedUrl:", signedData?.signedUrl ? "OK" : "null");
+    console.log("[Invoice Debug] signedError:", signedError);
+
+    signedImageUrl = signedData?.signedUrl || null;
+  } else {
+    console.log("[Invoice Debug] No image_url on invoice", invoice.id);
   }
 
   return (

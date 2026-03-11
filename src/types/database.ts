@@ -454,6 +454,15 @@ export type IngredientUsageDaily = Tables<"ingredient_usage_daily">;
 export type ProductIngredient = Tables<"product_ingredients">;
 export type OrderStatusHistory = Tables<"order_status_history">;
 
+// Business settings
+export interface BusinessSetting {
+  id: string;
+  key: string;
+  value: unknown;
+  updated_by: string | null;
+  updated_at: string;
+}
+
 // Order with related data
 export type OrderWithItems = Order & {
   order_items: OrderItem[];

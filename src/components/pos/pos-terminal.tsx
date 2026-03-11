@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/client";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { TAX_RATE } from "@/lib/config";
+import { formatOrderNumber } from "@/lib/order-number";
 import { ProductGrid } from "./product-grid";
 import { CartPanel, type CartItem } from "./cart-panel";
 import type { Product, Category } from "@/types/database";
@@ -229,7 +230,7 @@ export function PosTerminal({ products, categories }: PosTerminalProps) {
 
       if (itemsError) throw itemsError;
 
-      toast.success(`Order #${order.order_number} — $${total.toFixed(2)} paid!`);
+      toast.success(`Order ${formatOrderNumber(order.order_number)} — $${total.toFixed(2)} paid!`);
       setCart([]);
     } catch (error) {
       console.error("Charge error:", error);

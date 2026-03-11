@@ -8,6 +8,7 @@ import { format } from "date-fns";
 import { OrderForm, type OrderFormData } from "@/components/orders/order-form";
 import { TAX_RATE } from "@/lib/config";
 import type { Customer, Product, Category } from "@/types/database";
+import { formatOrderNumber } from "@/lib/order-number";
 
 interface NewOrderClientProps {
   customers: Customer[];
@@ -93,7 +94,7 @@ export function NewOrderClient({ customers, products }: NewOrderClientProps) {
         });
       }
 
-      toast.success(`Order #${order.order_number} created!`);
+      toast.success(`Order ${formatOrderNumber(order.order_number)} created!`);
       router.push(`/dashboard/orders/${order.id}`);
     } catch (error) {
       console.error("Error creating order:", error);

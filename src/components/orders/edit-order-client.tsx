@@ -8,6 +8,7 @@ import { format, parseISO } from "date-fns";
 import { OrderForm, type OrderFormData } from "@/components/orders/order-form";
 import type { Order, Customer, OrderItem, Product, Category } from "@/types/database";
 import { TAX_RATE } from "@/lib/config";
+import { formatOrderNumber } from "@/lib/order-number";
 
 type OrderWithItems = Order & {
   customer: Customer | null;
@@ -119,7 +120,7 @@ export function EditOrderClient({
 
       if (itemsError) throw itemsError;
 
-      toast.success(`Order #${order.order_number} updated!`);
+      toast.success(`Order ${formatOrderNumber(order.order_number)} updated!`);
       router.push(`/dashboard/orders/${order.id}`);
     } catch (error) {
       console.error("Error updating order:", error);

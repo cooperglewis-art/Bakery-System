@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { formatOrderNumber } from "@/lib/order-number";
 import { notFound } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -118,7 +119,7 @@ export default async function OrderDetailPage({
           <div>
             <div className="flex items-center gap-3">
               <h1 className="text-2xl font-bold text-gray-900">
-                Order #{order.order_number}
+                Order {formatOrderNumber(order.order_number)}
               </h1>
               <Badge className={`${statusColors[order.status]} border`}>
                 {statusLabels[order.status]}

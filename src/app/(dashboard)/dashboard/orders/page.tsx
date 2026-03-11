@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { formatOrderNumber } from "@/lib/order-number";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -163,7 +164,7 @@ export default async function OrdersPage({
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Order #</TableHead>
+                <TableHead>Order</TableHead>
                 <TableHead>Customer</TableHead>
                 <TableHead>Items</TableHead>
                 <TableHead>Delivery Date</TableHead>
@@ -181,7 +182,7 @@ export default async function OrdersPage({
                         href={`/dashboard/orders/${order.id}`}
                         className="font-medium text-amber-700 hover:underline"
                       >
-                        #{order.order_number}
+                        {formatOrderNumber(order.order_number)}
                       </Link>
                     </TableCell>
                     <TableCell>
@@ -248,7 +249,7 @@ export default async function OrdersPage({
                     <div>
                       <div className="flex items-center gap-2">
                         <span className="font-semibold text-amber-700">
-                          #{order.order_number}
+                          {formatOrderNumber(order.order_number)}
                         </span>
                         <Badge className={statusColors[order.status]}>
                           {statusLabels[order.status]}

@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { formatOrderNumber } from "@/lib/order-number";
 import { notFound } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
@@ -57,7 +58,7 @@ export default async function EditOrderPage({
         </Link>
         <div>
           <h1 className="text-2xl font-bold text-gray-900">
-            Edit Order #{order.order_number}
+            Edit Order {formatOrderNumber(order.order_number)}
           </h1>
           <p className="text-gray-500">Update order details</p>
         </div>
