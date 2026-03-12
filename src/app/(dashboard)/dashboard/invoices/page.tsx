@@ -26,6 +26,8 @@ import {
 import { InvoiceDateFilter } from "./invoice-date-filter";
 import type { Invoice } from "@/types/database";
 
+export const metadata = { title: "Invoices" };
+
 type InvoiceWithCount = Invoice & {
   invoice_items: { count: number }[];
 };
@@ -373,18 +375,21 @@ export default async function InvoicesPage({
               </TableBody>
             </Table>
           ) : (
-            <div className="text-center py-12">
-              <FileText className="h-12 w-12 mx-auto text-gray-300" />
+            <div className="flex flex-col items-center justify-center py-16 px-4">
+              <div className="rounded-full bg-stone-100 p-4 mb-4">
+                <FileText className="h-8 w-8 text-stone-400" />
+              </div>
               {activePeriod !== "all_time" || activeFilter !== "all" ? (
-                <p className="mt-4 text-gray-500">No invoices for this period</p>
+                <>
+                  <h3 className="text-lg font-medium text-stone-900 mb-1">No invoices for this period</h3>
+                  <p className="text-sm text-stone-500 text-center max-w-sm">Try adjusting your filters to see more results</p>
+                </>
               ) : (
                 <>
-                  <p className="mt-4 text-gray-500">No invoices found</p>
+                  <h3 className="text-lg font-medium text-stone-900 mb-1">No invoices yet</h3>
+                  <p className="text-sm text-stone-500 mb-6 text-center max-w-sm">Upload a supplier invoice to get started with AI-powered data extraction</p>
                   <Link href="/dashboard/invoices/new">
-                    <Button className="mt-4 bg-stone-800 hover:bg-stone-900">
-                      <Plus className="h-4 w-4 mr-2" />
-                      Upload Invoice
-                    </Button>
+                    <Button className="bg-stone-800 hover:bg-stone-900 text-white">Upload Invoice</Button>
                   </Link>
                 </>
               )}

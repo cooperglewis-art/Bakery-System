@@ -9,8 +9,11 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Sweet Delights Bakery",
-  description: "Order management and inventory forecasting for bakeries",
+  title: {
+    template: '%s | Sweet Delights',
+    default: 'Sweet Delights Bakery',
+  },
+  description: 'Bakery order management, analytics, and ingredient forecasting',
 };
 
 export default function RootLayout({

@@ -386,15 +386,23 @@ export function IngredientsManager({
       })}
 
       {ingredients.length === 0 && (
-        <Card>
-          <CardContent className="text-center py-12">
-            <Wheat className="h-12 w-12 mx-auto text-gray-300" />
-            <p className="mt-4 text-gray-500">No ingredients found</p>
-            <p className="text-sm text-gray-400">
-              Click &quot;Add Ingredient&quot; to get started
-            </p>
-          </CardContent>
-        </Card>
+        <div className="flex flex-col items-center justify-center py-16 px-4">
+          <div className="rounded-full bg-stone-100 p-4 mb-4">
+            <Wheat className="h-8 w-8 text-stone-400" />
+          </div>
+          <h3 className="text-lg font-medium text-stone-900 mb-1">No ingredients yet</h3>
+          <p className="text-sm text-stone-500 mb-6 text-center max-w-sm">Add ingredients to track your inventory and costs</p>
+          <Button
+            onClick={() => {
+              setForm(emptyForm);
+              setAddOpen(true);
+            }}
+            className="bg-stone-800 hover:bg-stone-900 text-white"
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            Add Ingredient
+          </Button>
+        </div>
       )}
 
       {/* Add Dialog */}

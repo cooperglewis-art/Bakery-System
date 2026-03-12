@@ -10,6 +10,7 @@ import {
   ArrowDownRight,
 } from "lucide-react";
 import { format, subDays, startOfMonth, endOfMonth, subMonths } from "date-fns";
+import { BarChart3 } from "lucide-react";
 import { RevenueChart } from "@/components/analytics/revenue-chart";
 import { OrderSourcesChart } from "@/components/analytics/order-sources-chart";
 import { TopProductsChart } from "@/components/analytics/top-products-chart";
@@ -17,6 +18,8 @@ import { BusiestDaysChart } from "@/components/analytics/busiest-days-chart";
 import { DeliverySplitChart } from "@/components/analytics/delivery-split-chart";
 import { TopCustomersTable } from "@/components/analytics/top-customers-table";
 import { SupplierSpendingTable } from "@/components/analytics/supplier-spending-table";
+
+export const metadata = { title: "Analytics" };
 
 const DAY_NAMES = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
@@ -327,26 +330,42 @@ export default async function AnalyticsPage() {
         />
       </div>
 
-      {/* Revenue Chart - Full Width */}
-      <RevenueChart data={revenueChartData} />
+      {activeOrders30.length === 0 && topProductsData.length === 0 ? (
+        <Card>
+          <CardContent className="p-0">
+            <div className="flex flex-col items-center justify-center py-16 px-4">
+              <div className="rounded-full bg-stone-100 p-4 mb-4">
+                <BarChart3 className="h-8 w-8 text-stone-400" />
+              </div>
+              <h3 className="text-lg font-medium text-stone-900 mb-1">Not enough data yet</h3>
+              <p className="text-sm text-stone-500 text-center max-w-sm">Analytics will appear once you have orders in the system</p>
+            </div>
+          </CardContent>
+        </Card>
+      ) : (
+        <>
+          {/* Revenue Chart - Full Width */}
+          <RevenueChart data={revenueChartData} />
 
-      {/* Charts Row: Top Products + Order Sources */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <TopProductsChart data={topProductsData} />
-        <OrderSourcesChart data={orderSourcesData} />
-      </div>
+          {/* Charts Row: Top Products + Order Sources */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <TopProductsChart data={topProductsData} />
+            <OrderSourcesChart data={orderSourcesData} />
+          </div>
 
-      {/* Charts Row: Busiest Days + Delivery Split */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <BusiestDaysChart data={busiestDaysData} />
-        <DeliverySplitChart delivery={deliveryCount} pickup={pickupCount} />
-      </div>
+          {/* Charts Row: Busiest Days + Delivery Split */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <BusiestDaysChart data={busiestDaysData} />
+            <DeliverySplitChart delivery={deliveryCount} pickup={pickupCount} />
+          </div>
 
-      {/* Tables Row: Top Customers + Supplier Spending */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <TopCustomersTable data={topCustomersData} />
-        <SupplierSpendingTable data={supplierSpendingData} />
-      </div>
+          {/* Tables Row: Top Customers + Supplier Spending */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <TopCustomersTable data={topCustomersData} />
+            <SupplierSpendingTable data={supplierSpendingData} />
+          </div>
+        </>
+      )}
     </div>
   );
 }

@@ -12,11 +12,13 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, Search, Package, Tag } from "lucide-react";
+import { Plus, Search, Package, Tag, ShoppingBag } from "lucide-react";
 import Link from "next/link";
 import type { Category, Product } from "@/types/database";
 import { ProductRowActions } from "./product-row-actions";
 import { PaginationNav } from "@/components/ui/pagination-nav";
+
+export const metadata = { title: "Products" };
 
 type ProductWithCategory = Product & { category: Category | null };
 
@@ -193,8 +195,17 @@ export default async function ProductsPage({
                     ))
                   ) : (
                     <TableRow>
-                      <TableCell colSpan={6} className="text-center py-12 text-gray-500">
-                        No products found
+                      <TableCell colSpan={6}>
+                        <div className="flex flex-col items-center justify-center py-16 px-4">
+                          <div className="rounded-full bg-stone-100 p-4 mb-4">
+                            <ShoppingBag className="h-8 w-8 text-stone-400" />
+                          </div>
+                          <h3 className="text-lg font-medium text-stone-900 mb-1">No products yet</h3>
+                          <p className="text-sm text-stone-500 mb-6 text-center max-w-sm">Add your bakery products to start taking orders</p>
+                          <Link href="/dashboard/products/new">
+                            <Button className="bg-stone-800 hover:bg-stone-900 text-white">Add Product</Button>
+                          </Link>
+                        </div>
                       </TableCell>
                     </TableRow>
                   )}
@@ -249,11 +260,16 @@ export default async function ProductsPage({
                 </Card>
               ))
             ) : (
-              <Card>
-                <CardContent className="py-12 text-center text-gray-500">
-                  No products found
-                </CardContent>
-              </Card>
+              <div className="flex flex-col items-center justify-center py-16 px-4">
+                <div className="rounded-full bg-stone-100 p-4 mb-4">
+                  <ShoppingBag className="h-8 w-8 text-stone-400" />
+                </div>
+                <h3 className="text-lg font-medium text-stone-900 mb-1">No products yet</h3>
+                <p className="text-sm text-stone-500 mb-6 text-center max-w-sm">Add your bakery products to start taking orders</p>
+                <Link href="/dashboard/products/new">
+                  <Button className="bg-stone-800 hover:bg-stone-900 text-white">Add Product</Button>
+                </Link>
+              </div>
             )}
           </div>
         </TabsContent>

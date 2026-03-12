@@ -11,12 +11,14 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Plus, Search, Phone, Mail, FileText } from "lucide-react";
+import { Plus, Search, Phone, Mail, FileText, Users } from "lucide-react";
 import Link from "next/link";
 import { format } from "date-fns";
 import type { Customer } from "@/types/database";
 import CustomerRowActions from "./customer-row-actions";
 import { PaginationNav } from "@/components/ui/pagination-nav";
+
+export const metadata = { title: "Customers" };
 
 const PAGE_SIZE = 25;
 
@@ -156,8 +158,17 @@ export default async function CustomersPage({
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center py-12 text-gray-500">
-                    No customers found
+                  <TableCell colSpan={6}>
+                    <div className="flex flex-col items-center justify-center py-16 px-4">
+                      <div className="rounded-full bg-stone-100 p-4 mb-4">
+                        <Users className="h-8 w-8 text-stone-400" />
+                      </div>
+                      <h3 className="text-lg font-medium text-stone-900 mb-1">No customers yet</h3>
+                      <p className="text-sm text-stone-500 mb-6 text-center max-w-sm">Add your first customer to start tracking orders</p>
+                      <Link href="/dashboard/customers/new">
+                        <Button className="bg-stone-800 hover:bg-stone-900 text-white">Add Customer</Button>
+                      </Link>
+                    </div>
                   </TableCell>
                 </TableRow>
               )}
@@ -204,11 +215,16 @@ export default async function CustomersPage({
             </Link>
           ))
         ) : (
-          <Card>
-            <CardContent className="py-12 text-center text-gray-500">
-              No customers found
-            </CardContent>
-          </Card>
+          <div className="flex flex-col items-center justify-center py-16 px-4">
+            <div className="rounded-full bg-stone-100 p-4 mb-4">
+              <Users className="h-8 w-8 text-stone-400" />
+            </div>
+            <h3 className="text-lg font-medium text-stone-900 mb-1">No customers yet</h3>
+            <p className="text-sm text-stone-500 mb-6 text-center max-w-sm">Add your first customer to start tracking orders</p>
+            <Link href="/dashboard/customers/new">
+              <Button className="bg-stone-800 hover:bg-stone-900 text-white">Add Customer</Button>
+            </Link>
+          </div>
         )}
       </div>
 

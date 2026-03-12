@@ -19,10 +19,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Plus, Search, Filter } from "lucide-react";
+import { Plus, Search, Filter, ClipboardList } from "lucide-react";
 import Link from "next/link";
 import { format } from "date-fns";
 import { OrdersPagination } from "@/components/orders/orders-pagination";
+
+export const metadata = { title: "Orders" };
 
 interface OrderRow {
   id: string;
@@ -227,8 +229,17 @@ export default async function OrdersPage({
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center py-12 text-gray-500">
-                    No orders found
+                  <TableCell colSpan={7}>
+                    <div className="flex flex-col items-center justify-center py-16 px-4">
+                      <div className="rounded-full bg-stone-100 p-4 mb-4">
+                        <ClipboardList className="h-8 w-8 text-stone-400" />
+                      </div>
+                      <h3 className="text-lg font-medium text-stone-900 mb-1">No orders yet</h3>
+                      <p className="text-sm text-stone-500 mb-6 text-center max-w-sm">Create your first order to get started</p>
+                      <Link href="/dashboard/orders/new">
+                        <Button className="bg-stone-800 hover:bg-stone-900 text-white">New Order</Button>
+                      </Link>
+                    </div>
                   </TableCell>
                 </TableRow>
               )}
@@ -284,11 +295,16 @@ export default async function OrdersPage({
             </Link>
           ))
         ) : (
-          <Card>
-            <CardContent className="py-12 text-center text-gray-500">
-              No orders found
-            </CardContent>
-          </Card>
+          <div className="flex flex-col items-center justify-center py-16 px-4">
+            <div className="rounded-full bg-stone-100 p-4 mb-4">
+              <ClipboardList className="h-8 w-8 text-stone-400" />
+            </div>
+            <h3 className="text-lg font-medium text-stone-900 mb-1">No orders yet</h3>
+            <p className="text-sm text-stone-500 mb-6 text-center max-w-sm">Create your first order to get started</p>
+            <Link href="/dashboard/orders/new">
+              <Button className="bg-stone-800 hover:bg-stone-900 text-white">New Order</Button>
+            </Link>
+          </div>
         )}
       </div>
 

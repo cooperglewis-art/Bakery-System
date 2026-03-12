@@ -4,6 +4,8 @@ import { IngredientsManager } from "@/components/ingredients/ingredients-manager
 import { PaginationNav } from "@/components/ui/pagination-nav";
 import type { Ingredient } from "@/types/database";
 
+export const metadata = { title: "Ingredients" };
+
 const PAGE_SIZE = 50;
 
 interface SearchParams {

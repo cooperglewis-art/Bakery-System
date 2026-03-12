@@ -4,6 +4,8 @@ import { calculateDemandForecast } from "@/lib/forecasting/demand";
 import { calculateCostTrend, calculateMonthlySpend } from "@/lib/forecasting/cost";
 import type { ForecastPoint, CostTrendPoint, ReorderAlert } from "@/lib/forecasting/types";
 import type { Ingredient } from "@/types/database";
+export const metadata = { title: "Forecasting" };
+
 import { ForecastingSummaryCards } from "@/components/forecasting/forecasting-summary-cards";
 import { DemandForecastChart } from "@/components/forecasting/demand-forecast-chart";
 import { CostTrendChart } from "@/components/forecasting/cost-trend-chart";

@@ -24,6 +24,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { TrendingUp } from "lucide-react";
 import type { ForecastPoint } from "@/lib/forecasting/types";
 
 interface DemandForecastChartProps {
@@ -125,10 +126,18 @@ export function DemandForecastChart({ forecasts }: DemandForecastChartProps) {
             </AreaChart>
           </ResponsiveContainer>
         ) : (
-          <div className="flex items-center justify-center h-[350px] text-gray-400">
-            {ingredientIds.length === 0
-              ? "No usage data available for forecasting"
-              : "Select an ingredient to view the forecast"}
+          <div className="flex flex-col items-center justify-center h-[350px]">
+            <div className="rounded-full bg-stone-100 p-4 mb-4">
+              <TrendingUp className="h-8 w-8 text-stone-400" />
+            </div>
+            <h3 className="text-lg font-medium text-stone-900 mb-1">
+              {ingredientIds.length === 0 ? "No forecast data yet" : "Select an ingredient"}
+            </h3>
+            <p className="text-sm text-stone-500 text-center max-w-sm">
+              {ingredientIds.length === 0
+                ? "Demand forecasts will appear once ingredients have usage history"
+                : "Choose an ingredient from the dropdown to view its forecast"}
+            </p>
           </div>
         )}
       </CardContent>

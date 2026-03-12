@@ -24,6 +24,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { DollarSign } from "lucide-react";
 import type { CostTrendPoint } from "@/lib/forecasting/types";
 
 interface CostTrendChartProps {
@@ -122,10 +123,18 @@ export function CostTrendChart({ trends }: CostTrendChartProps) {
             </LineChart>
           </ResponsiveContainer>
         ) : (
-          <div className="flex items-center justify-center h-[350px] text-gray-400">
-            {ingredientIds.length === 0
-              ? "No invoice data available for cost analysis"
-              : "Select an ingredient to view cost trends"}
+          <div className="flex flex-col items-center justify-center h-[350px]">
+            <div className="rounded-full bg-stone-100 p-4 mb-4">
+              <DollarSign className="h-8 w-8 text-stone-400" />
+            </div>
+            <h3 className="text-lg font-medium text-stone-900 mb-1">
+              {ingredientIds.length === 0 ? "No cost data yet" : "Select an ingredient"}
+            </h3>
+            <p className="text-sm text-stone-500 text-center max-w-sm">
+              {ingredientIds.length === 0
+                ? "Cost trends will appear once you have verified invoices with matched ingredients"
+                : "Choose an ingredient from the dropdown to view its cost history"}
+            </p>
           </div>
         )}
       </CardContent>

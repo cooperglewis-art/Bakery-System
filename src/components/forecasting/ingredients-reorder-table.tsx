@@ -14,7 +14,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, Wheat } from "lucide-react";
 import type { ReorderAlert } from "@/lib/forecasting/types";
 
 interface IngredientsReorderTableProps {
@@ -95,8 +95,14 @@ export function IngredientsReorderTable({ alerts }: IngredientsReorderTableProps
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={5} className="text-center py-12 text-gray-500">
-                  No ingredient data available for reorder analysis
+                <TableCell colSpan={5}>
+                  <div className="flex flex-col items-center justify-center py-16 px-4">
+                    <div className="rounded-full bg-stone-100 p-4 mb-4">
+                      <Wheat className="h-8 w-8 text-stone-400" />
+                    </div>
+                    <h3 className="text-lg font-medium text-stone-900 mb-1">No reorder data yet</h3>
+                    <p className="text-sm text-stone-500 text-center max-w-sm">Reorder alerts will appear once you add ingredients with usage history</p>
+                  </div>
                 </TableCell>
               </TableRow>
             )}
