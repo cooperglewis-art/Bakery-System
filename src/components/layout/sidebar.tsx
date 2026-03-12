@@ -6,7 +6,6 @@ import { cn } from "@/lib/utils";
 import {
   LayoutDashboard,
   ClipboardList,
-  CreditCard,
   Users,
   Package,
   Wheat,
@@ -23,7 +22,6 @@ import { Separator } from "@/components/ui/separator";
 
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-  { name: "POS", href: "/dashboard/pos", icon: CreditCard },
   { name: "Orders", href: "/dashboard/orders", icon: ClipboardList },
   { name: "Customers", href: "/dashboard/customers", icon: Users },
   { name: "Products", href: "/dashboard/products", icon: Package },

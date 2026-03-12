@@ -169,7 +169,7 @@ export interface Database {
           order_number: number;
           customer_id: string | null;
           status: "pending" | "confirmed" | "in_progress" | "ready" | "completed" | "cancelled";
-          source: "call" | "text" | "dm_instagram" | "dm_facebook" | "walk_in" | "website" | "other";
+          source: "call" | "text" | "dm_instagram" | "dm_facebook" | "website" | "other";
           order_date: string;
           delivery_date: string;
           delivery_time_slot: string | null;
@@ -189,7 +189,7 @@ export interface Database {
           order_number?: number;
           customer_id?: string | null;
           status?: "pending" | "confirmed" | "in_progress" | "ready" | "completed" | "cancelled";
-          source: "call" | "text" | "dm_instagram" | "dm_facebook" | "walk_in" | "website" | "other";
+          source: "call" | "text" | "dm_instagram" | "dm_facebook" | "website" | "other";
           order_date?: string;
           delivery_date: string;
           delivery_time_slot?: string | null;
@@ -209,7 +209,7 @@ export interface Database {
           order_number?: number;
           customer_id?: string | null;
           status?: "pending" | "confirmed" | "in_progress" | "ready" | "completed" | "cancelled";
-          source?: "call" | "text" | "dm_instagram" | "dm_facebook" | "walk_in" | "website" | "other";
+          source?: "call" | "text" | "dm_instagram" | "dm_facebook" | "website" | "other";
           order_date?: string;
           delivery_date?: string;
           delivery_time_slot?: string | null;

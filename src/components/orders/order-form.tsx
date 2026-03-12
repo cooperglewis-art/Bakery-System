@@ -286,7 +286,6 @@ export function OrderForm({
                 <SelectItem value="text">Text Message</SelectItem>
                 <SelectItem value="dm_instagram">Instagram DM</SelectItem>
                 <SelectItem value="dm_facebook">Facebook DM</SelectItem>
-                <SelectItem value="walk_in">Walk-in</SelectItem>
                 <SelectItem value="website">Website</SelectItem>
                 <SelectItem value="other">Other</SelectItem>
               </SelectContent>

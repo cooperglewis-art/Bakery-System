@@ -92,7 +92,6 @@ export default async function OrdersPage({
     text: "Text",
     dm_instagram: "Instagram",
     dm_facebook: "Facebook",
-    walk_in: "Walk-in",
     website: "Website",
     other: "Other",
   };

@@ -25,7 +25,6 @@ const SOURCE_LABELS: Record<string, string> = {
   text: "Text",
   dm_instagram: "Instagram DM",
   dm_facebook: "Facebook DM",
-  walk_in: "Walk-in",
   website: "Website",
   other: "Other",
 };

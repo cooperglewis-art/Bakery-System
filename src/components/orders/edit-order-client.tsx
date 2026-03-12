@@ -79,7 +79,6 @@ export function EditOrderClient({
             | "text"
             | "dm_instagram"
             | "dm_facebook"
-            | "walk_in"
             | "website"
             | "other",
           delivery_date: format(data.deliveryDate, "yyyy-MM-dd"),
