@@ -173,7 +173,7 @@ export default async function InvoicesPage({
           </p>
         </div>
         <Link href="/dashboard/invoices/new">
-          <Button className="bg-amber-600 hover:bg-amber-700">
+          <Button className="bg-stone-800 hover:bg-stone-900">
             <Plus className="h-4 w-4 mr-2" />
             Upload Invoice
           </Button>
@@ -200,7 +200,7 @@ export default async function InvoicesPage({
                 size="sm"
                 className={
                   activeFilter === option.value
-                    ? "bg-amber-600 hover:bg-amber-700"
+                    ? "bg-stone-800 hover:bg-stone-900"
                     : ""
                 }
               >
@@ -226,7 +226,7 @@ export default async function InvoicesPage({
                 size="sm"
                 className={
                   activePeriod === option.value
-                    ? "bg-amber-600 hover:bg-amber-700"
+                    ? "bg-stone-800 hover:bg-stone-900"
                     : ""
                 }
               >
@@ -244,13 +244,13 @@ export default async function InvoicesPage({
       </div>
 
       {/* Period Summary */}
-      <Card className="bg-amber-50 border-amber-200">
+      <Card className="bg-stone-50 border-stone-200">
         <CardContent className="flex items-center gap-3 py-4">
-          <DollarSign className="h-5 w-5 text-amber-700" />
-          <span className="text-lg font-semibold text-amber-900">
+          <DollarSign className="h-5 w-5 text-stone-700" />
+          <span className="text-lg font-semibold text-stone-900">
             ${totalAmount.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </span>
-          <span className="text-sm text-amber-700">
+          <span className="text-sm text-stone-700">
             &mdash; {periodLabel}: {invoices.length} invoice{invoices.length !== 1 ? "s" : ""}
           </span>
         </CardContent>
@@ -311,7 +311,7 @@ export default async function InvoicesPage({
                     if (daysUntilDue < 0) {
                       dueDateDisplay = <span className="text-red-600 font-medium">{formatted} <span className="text-xs">(overdue)</span></span>;
                     } else if (daysUntilDue <= 7) {
-                      dueDateDisplay = <span className="text-amber-600 font-medium">{formatted}</span>;
+                      dueDateDisplay = <span className="text-stone-600 font-medium">{formatted}</span>;
                     } else {
                       dueDateDisplay = <span className="text-gray-600">{formatted}</span>;
                     }
@@ -381,7 +381,7 @@ export default async function InvoicesPage({
                 <>
                   <p className="mt-4 text-gray-500">No invoices found</p>
                   <Link href="/dashboard/invoices/new">
-                    <Button className="mt-4 bg-amber-600 hover:bg-amber-700">
+                    <Button className="mt-4 bg-stone-800 hover:bg-stone-900">
                       <Plus className="h-4 w-4 mr-2" />
                       Upload Invoice
                     </Button>

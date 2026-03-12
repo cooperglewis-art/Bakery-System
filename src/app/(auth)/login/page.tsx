@@ -71,18 +71,21 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-amber-50 to-orange-100 p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader className="text-center">
-          <div className="flex justify-center mb-4">
-            <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-amber-600">
-              <ChefHat className="h-10 w-10 text-white" />
+    <div className="min-h-screen flex items-center justify-center bg-background p-4">
+      {/* Subtle warm radial gradient overlay */}
+      <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_top,_oklch(0.95_0.02_60)_0%,_transparent_60%)] pointer-events-none" />
+
+      <Card className="relative w-full max-w-md shadow-apple-lg border-border/60">
+        <CardHeader className="text-center pb-2 pt-10">
+          <div className="flex justify-center mb-6">
+            <div className="flex h-18 w-18 items-center justify-center rounded-2xl bg-primary shadow-apple">
+              <ChefHat className="h-10 w-10 text-primary-foreground" />
             </div>
           </div>
-          <CardTitle className="text-2xl text-amber-900">Sweet Delights</CardTitle>
-          <CardDescription>Order Management System</CardDescription>
+          <CardTitle className="text-2xl font-semibold text-foreground tracking-tight">Sweet Delights</CardTitle>
+          <CardDescription className="text-muted-foreground">Order Management System</CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="px-8 pb-8">
           <Tabs defaultValue="signin" className="w-full">
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="signin">Sign In</TabsTrigger>
@@ -90,9 +93,9 @@ export default function LoginPage() {
             </TabsList>
 
             <TabsContent value="signin">
-              <form onSubmit={handleSignIn} className="space-y-4 mt-4">
+              <form onSubmit={handleSignIn} className="space-y-5 mt-6">
                 <div className="space-y-2">
-                  <Label htmlFor="signin-email">Email</Label>
+                  <Label htmlFor="signin-email" className="text-sm font-medium text-foreground">Email</Label>
                   <Input
                     id="signin-email"
                     name="email"
@@ -100,10 +103,11 @@ export default function LoginPage() {
                     placeholder="you@example.com"
                     required
                     disabled={isLoading}
+                    className="h-11 transition-all duration-200 focus:shadow-sm"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="signin-password">Password</Label>
+                  <Label htmlFor="signin-password" className="text-sm font-medium text-foreground">Password</Label>
                   <Input
                     id="signin-password"
                     name="password"
@@ -111,19 +115,20 @@ export default function LoginPage() {
                     placeholder="••••••••"
                     required
                     disabled={isLoading}
+                    className="h-11 transition-all duration-200 focus:shadow-sm"
                   />
                 </div>
                 <div className="flex justify-end">
                   <Link
                     href="/forgot-password"
-                    className="text-sm text-amber-600 hover:underline"
+                    className="text-sm text-primary hover:text-primary/80 transition-colors duration-200"
                   >
                     Forgot password?
                   </Link>
                 </div>
                 <Button
                   type="submit"
-                  className="w-full bg-amber-600 hover:bg-amber-700"
+                  className="w-full h-11 bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm hover:shadow-md transition-all duration-200 font-medium"
                   disabled={isLoading}
                 >
                   {isLoading ? (
@@ -139,9 +144,9 @@ export default function LoginPage() {
             </TabsContent>
 
             <TabsContent value="signup">
-              <form onSubmit={handleSignUp} className="space-y-4 mt-4">
+              <form onSubmit={handleSignUp} className="space-y-5 mt-6">
                 <div className="space-y-2">
-                  <Label htmlFor="signup-name">Full Name</Label>
+                  <Label htmlFor="signup-name" className="text-sm font-medium text-foreground">Full Name</Label>
                   <Input
                     id="signup-name"
                     name="fullName"
@@ -149,10 +154,11 @@ export default function LoginPage() {
                     placeholder="John Doe"
                     required
                     disabled={isLoading}
+                    className="h-11 transition-all duration-200 focus:shadow-sm"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="signup-email">Email</Label>
+                  <Label htmlFor="signup-email" className="text-sm font-medium text-foreground">Email</Label>
                   <Input
                     id="signup-email"
                     name="email"
@@ -160,10 +166,11 @@ export default function LoginPage() {
                     placeholder="you@example.com"
                     required
                     disabled={isLoading}
+                    className="h-11 transition-all duration-200 focus:shadow-sm"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="signup-password">Password</Label>
+                  <Label htmlFor="signup-password" className="text-sm font-medium text-foreground">Password</Label>
                   <Input
                     id="signup-password"
                     name="password"
@@ -172,11 +179,12 @@ export default function LoginPage() {
                     minLength={6}
                     required
                     disabled={isLoading}
+                    className="h-11 transition-all duration-200 focus:shadow-sm"
                   />
                 </div>
                 <Button
                   type="submit"
-                  className="w-full bg-amber-600 hover:bg-amber-700"
+                  className="w-full h-11 bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm hover:shadow-md transition-all duration-200 font-medium"
                   disabled={isLoading}
                 >
                   {isLoading ? (

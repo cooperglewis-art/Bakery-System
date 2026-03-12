@@ -99,7 +99,7 @@ export function PaginationNav({
                 key={page}
                 variant="default"
                 size="sm"
-                className="bg-amber-600 hover:bg-amber-700"
+                className="bg-stone-800 hover:bg-stone-900"
               >
                 {page}
               </Button>

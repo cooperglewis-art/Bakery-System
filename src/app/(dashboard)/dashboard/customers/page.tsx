@@ -62,7 +62,7 @@ export default async function CustomersPage({
           <p className="text-gray-500">Manage your customer database</p>
         </div>
         <Link href="/dashboard/customers/new">
-          <Button className="bg-amber-600 hover:bg-amber-700">
+          <Button className="bg-stone-800 hover:bg-stone-900">
             <Plus className="h-4 w-4 mr-2" />
             Add Customer
           </Button>
@@ -106,11 +106,11 @@ export default async function CustomersPage({
             <TableBody>
               {customers && customers.length > 0 ? (
                 customers.map((customer) => (
-                  <TableRow key={customer.id} className="cursor-pointer hover:bg-amber-50">
+                  <TableRow key={customer.id} className="cursor-pointer hover:bg-stone-50">
                     <TableCell>
                       <Link
                         href={`/dashboard/customers/${customer.id}`}
-                        className="font-medium text-amber-700 hover:underline"
+                        className="font-medium text-stone-700 hover:underline"
                       >
                         {customer.name}
                       </Link>
@@ -171,11 +171,11 @@ export default async function CustomersPage({
         {customers && customers.length > 0 ? (
           customers.map((customer) => (
             <Link key={customer.id} href={`/dashboard/customers/${customer.id}`}>
-              <Card className="hover:border-amber-300 transition-colors">
+              <Card className="hover:border-stone-300 transition-colors">
                 <CardContent className="pt-4">
                   <div className="flex items-start justify-between">
                     <div>
-                      <p className="font-semibold text-amber-700">{customer.name}</p>
+                      <p className="font-semibold text-stone-700">{customer.name}</p>
                       {customer.phone && (
                         <div className="flex items-center gap-2 text-sm text-gray-600 mt-1">
                           <Phone className="h-3 w-3" />

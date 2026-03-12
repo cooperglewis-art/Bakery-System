@@ -19,7 +19,7 @@ interface OrderStatusTimelineProps {
 }
 
 const statusColors: Record<string, string> = {
-  pending: "bg-amber-100 text-amber-800",
+  pending: "bg-stone-100 text-stone-800",
   confirmed: "bg-blue-100 text-blue-800",
   in_progress: "bg-indigo-100 text-indigo-800",
   ready: "bg-green-100 text-green-800",
@@ -56,7 +56,7 @@ export function OrderStatusTimeline({ history }: OrderStatusTimelineProps) {
             {history.map((entry) => (
               <div key={entry.id} className="relative flex gap-4 pl-8">
                 {/* Dot */}
-                <div className="absolute left-1.5 top-1.5 h-3 w-3 rounded-full border-2 border-white bg-amber-500" />
+                <div className="absolute left-1.5 top-1.5 h-3 w-3 rounded-full border-2 border-white bg-stone-500" />
 
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">

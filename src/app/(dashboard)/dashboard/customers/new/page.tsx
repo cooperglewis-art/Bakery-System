@@ -119,7 +119,7 @@ export default function NewCustomerPage() {
             <div className="flex gap-3 pt-4">
               <Button
                 type="submit"
-                className="bg-amber-600 hover:bg-amber-700"
+                className="bg-stone-800 hover:bg-stone-900"
                 disabled={saving}
               >
                 {saving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}

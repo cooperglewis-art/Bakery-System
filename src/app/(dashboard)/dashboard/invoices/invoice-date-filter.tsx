@@ -56,7 +56,7 @@ export function InvoiceDateFilter({
       <Button
         size="sm"
         variant={activePeriod === "custom" ? "default" : "outline"}
-        className={activePeriod === "custom" ? "bg-amber-600 hover:bg-amber-700" : ""}
+        className={activePeriod === "custom" ? "bg-stone-800 hover:bg-stone-900" : ""}
         onClick={handleApply}
         disabled={!from && !to}
       >

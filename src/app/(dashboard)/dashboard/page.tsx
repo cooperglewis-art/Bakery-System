@@ -58,7 +58,7 @@ export default async function DashboardPage() {
 
   // Status color mapping
   const statusColors: Record<string, string> = {
-    pending: "bg-amber-100 text-amber-800",
+    pending: "bg-stone-100 text-stone-800",
     confirmed: "bg-blue-100 text-blue-800",
     in_progress: "bg-indigo-100 text-indigo-800",
     ready: "bg-green-100 text-green-800",
@@ -86,7 +86,7 @@ export default async function DashboardPage() {
           </p>
         </div>
         <Link href="/dashboard/orders/new">
-          <Button className="bg-amber-600 hover:bg-amber-700">
+          <Button className="bg-stone-800 hover:bg-stone-900">
             <Plus className="h-4 w-4 mr-2" />
             New Order
           </Button>
@@ -98,8 +98,8 @@ export default async function DashboardPage() {
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-100">
-                <Clock className="h-5 w-5 text-amber-600" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-stone-100">
+                <Clock className="h-5 w-5 text-stone-600" />
               </div>
               <div>
                 <p className="text-2xl font-bold">{pendingCount || 0}</p>
@@ -172,7 +172,7 @@ export default async function DashboardPage() {
                   href={`/dashboard/orders/${order.id}`}
                   className="block"
                 >
-                  <div className="flex items-center justify-between p-4 rounded-lg border border-gray-200 hover:border-amber-300 hover:bg-amber-50 transition-colors">
+                  <div className="flex items-center justify-between p-4 rounded-lg border border-gray-200 hover:border-stone-300 hover:bg-stone-50 transition-colors">
                     <div className="flex-1">
                       <div className="flex items-center gap-3">
                         <span className="font-medium text-gray-900">
@@ -210,7 +210,7 @@ export default async function DashboardPage() {
               <ClipboardList className="h-12 w-12 mx-auto text-gray-300" />
               <p className="mt-4 text-gray-500">No orders scheduled for today</p>
               <Link href="/dashboard/orders/new">
-                <Button className="mt-4 bg-amber-600 hover:bg-amber-700">
+                <Button className="mt-4 bg-stone-800 hover:bg-stone-900">
                   <Plus className="h-4 w-4 mr-2" />
                   Create Order
                 </Button>
@@ -223,36 +223,36 @@ export default async function DashboardPage() {
       {/* Quick Actions */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <Link href="/dashboard/orders">
-          <Card className="hover:border-amber-300 transition-colors cursor-pointer">
+          <Card className="hover:border-stone-300 transition-colors cursor-pointer">
             <CardContent className="pt-6 text-center">
-              <ClipboardList className="h-8 w-8 mx-auto text-amber-600" />
+              <ClipboardList className="h-8 w-8 mx-auto text-stone-600" />
               <p className="mt-2 font-medium">All Orders</p>
             </CardContent>
           </Card>
         </Link>
 
         <Link href="/dashboard/customers">
-          <Card className="hover:border-amber-300 transition-colors cursor-pointer">
+          <Card className="hover:border-stone-300 transition-colors cursor-pointer">
             <CardContent className="pt-6 text-center">
-              <Users className="h-8 w-8 mx-auto text-amber-600" />
+              <Users className="h-8 w-8 mx-auto text-stone-600" />
               <p className="mt-2 font-medium">Customers</p>
             </CardContent>
           </Card>
         </Link>
 
         <Link href="/dashboard/invoices/new">
-          <Card className="hover:border-amber-300 transition-colors cursor-pointer">
+          <Card className="hover:border-stone-300 transition-colors cursor-pointer">
             <CardContent className="pt-6 text-center">
-              <DollarSign className="h-8 w-8 mx-auto text-amber-600" />
+              <DollarSign className="h-8 w-8 mx-auto text-stone-600" />
               <p className="mt-2 font-medium">Add Invoice</p>
             </CardContent>
           </Card>
         </Link>
 
         <Link href="/dashboard/forecasting">
-          <Card className="hover:border-amber-300 transition-colors cursor-pointer">
+          <Card className="hover:border-stone-300 transition-colors cursor-pointer">
             <CardContent className="pt-6 text-center">
-              <TrendingUp className="h-8 w-8 mx-auto text-amber-600" />
+              <TrendingUp className="h-8 w-8 mx-auto text-stone-600" />
               <p className="mt-2 font-medium">Forecasting</p>
             </CardContent>
           </Card>

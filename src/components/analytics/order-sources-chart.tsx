@@ -30,7 +30,7 @@ const SOURCE_LABELS: Record<string, string> = {
 };
 
 const COLORS = [
-  "#d97706", // amber-600
+  "#57534e", // stone-600
   "#6366f1", // indigo-500
   "#10b981", // emerald-500
   "#f43f5e", // rose-500

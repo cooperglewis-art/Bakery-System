@@ -70,7 +70,7 @@ export default async function OrdersPage({
   const totalPages = Math.ceil(totalCount / PAGE_SIZE);
 
   const statusColors: Record<string, string> = {
-    pending: "bg-amber-100 text-amber-800",
+    pending: "bg-stone-100 text-stone-800",
     confirmed: "bg-blue-100 text-blue-800",
     in_progress: "bg-indigo-100 text-indigo-800",
     ready: "bg-green-100 text-green-800",
@@ -107,7 +107,7 @@ export default async function OrdersPage({
           </p>
         </div>
         <Link href="/dashboard/orders/new">
-          <Button className="bg-amber-600 hover:bg-amber-700">
+          <Button className="bg-stone-800 hover:bg-stone-900">
             <Plus className="h-4 w-4 mr-2" />
             New Order
           </Button>
@@ -175,11 +175,11 @@ export default async function OrdersPage({
             <TableBody>
               {orders.length > 0 ? (
                 orders.map((order) => (
-                  <TableRow key={order.id} className="cursor-pointer hover:bg-amber-50">
+                  <TableRow key={order.id} className="cursor-pointer hover:bg-stone-50">
                     <TableCell>
                       <Link
                         href={`/dashboard/orders/${order.id}`}
-                        className="font-medium text-amber-700 hover:underline"
+                        className="font-medium text-stone-700 hover:underline"
                       >
                         {formatOrderNumber(order.order_number)}
                       </Link>
@@ -242,12 +242,12 @@ export default async function OrdersPage({
         {orders.length > 0 ? (
           orders.map((order) => (
             <Link key={order.id} href={`/dashboard/orders/${order.id}`}>
-              <Card className="hover:border-amber-300 transition-colors">
+              <Card className="hover:border-stone-300 transition-colors">
                 <CardContent className="pt-4">
                   <div className="flex items-start justify-between">
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="font-semibold text-amber-700">
+                        <span className="font-semibold text-stone-700">
                           {formatOrderNumber(order.order_number)}
                         </span>
                         <Badge className={statusColors[order.status]}>

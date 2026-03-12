@@ -26,8 +26,8 @@ const statusConfig = [
     value: "pending",
     label: "Pending",
     icon: Clock,
-    color: "bg-amber-500",
-    hoverColor: "hover:bg-amber-600",
+    color: "bg-stone-500",
+    hoverColor: "hover:bg-stone-600",
   },
   {
     value: "confirmed",

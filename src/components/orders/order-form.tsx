@@ -576,7 +576,7 @@ export function OrderForm({
       <div className="flex gap-4">
         <Button
           type="submit"
-          className="flex-1 bg-amber-600 hover:bg-amber-700"
+          className="flex-1 bg-stone-800 hover:bg-stone-900"
           disabled={isSubmitting}
         >
           {isSubmitting ? (

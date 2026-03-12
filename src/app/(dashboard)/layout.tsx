@@ -20,7 +20,7 @@ export default function DashboardLayout({
   };
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen bg-background transition-colors duration-200">
       {/* Desktop sidebar */}
       <div className="hidden md:flex">
         <Sidebar onSignOut={handleSignOut} />

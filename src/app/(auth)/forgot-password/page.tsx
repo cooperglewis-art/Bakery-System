@@ -43,15 +43,15 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-amber-50 to-orange-100 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-stone-50 to-stone-100 p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
-            <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-amber-600">
+            <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-stone-800">
               <ChefHat className="h-10 w-10 text-white" />
             </div>
           </div>
-          <CardTitle className="text-2xl text-amber-900">
+          <CardTitle className="text-2xl text-stone-900">
             Reset Password
           </CardTitle>
           <CardDescription>
@@ -64,8 +64,8 @@ export default function ForgotPasswordPage() {
           {emailSent ? (
             <div className="space-y-4">
               <div className="flex justify-center">
-                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-amber-100">
-                  <Mail className="h-6 w-6 text-amber-600" />
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-stone-100">
+                  <Mail className="h-6 w-6 text-stone-600" />
                 </div>
               </div>
               <p className="text-center text-sm text-muted-foreground">
@@ -97,7 +97,7 @@ export default function ForgotPasswordPage() {
               </div>
               <Button
                 type="submit"
-                className="w-full bg-amber-600 hover:bg-amber-700"
+                className="w-full bg-stone-800 hover:bg-stone-900"
                 disabled={isLoading}
               >
                 {isLoading ? (
@@ -111,7 +111,7 @@ export default function ForgotPasswordPage() {
               </Button>
               <Link
                 href="/login"
-                className="block text-center text-sm text-amber-600 hover:underline"
+                className="block text-center text-sm text-stone-600 hover:underline"
               >
                 Back to Sign In
               </Link>

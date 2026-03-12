@@ -79,7 +79,7 @@ export default async function OrderDetailPage({
   const statusHistory = (historyRes.data || []) as unknown as StatusHistoryEntry[];
 
   const statusColors: Record<string, string> = {
-    pending: "bg-amber-100 text-amber-800 border-amber-300",
+    pending: "bg-stone-100 text-stone-800 border-stone-300",
     confirmed: "bg-blue-100 text-blue-800 border-blue-300",
     in_progress: "bg-indigo-100 text-indigo-800 border-indigo-300",
     ready: "bg-green-100 text-green-800 border-green-300",
@@ -158,7 +158,7 @@ export default async function OrderDetailPage({
                         Qty: {item.quantity} × ${item.unit_price.toFixed(2)}
                       </p>
                       {item.notes && (
-                        <p className="text-sm text-amber-700 mt-1">
+                        <p className="text-sm text-stone-700 mt-1">
                           Note: {item.notes}
                         </p>
                       )}
@@ -242,7 +242,7 @@ export default async function OrderDetailPage({
                       <Phone className="h-4 w-4" />
                       <a
                         href={`tel:${order.customer.phone}`}
-                        className="hover:text-amber-700"
+                        className="hover:text-stone-700"
                       >
                         {order.customer.phone}
                       </a>
@@ -253,7 +253,7 @@ export default async function OrderDetailPage({
                       <Mail className="h-4 w-4" />
                       <a
                         href={`mailto:${order.customer.email}`}
-                        className="hover:text-amber-700"
+                        className="hover:text-stone-700"
                       >
                         {order.customer.email}
                       </a>

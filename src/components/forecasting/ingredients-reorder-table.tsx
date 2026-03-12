@@ -27,7 +27,7 @@ export function IngredientsReorderTable({ alerts }: IngredientsReorderTableProps
 
   const getRowClass = (daysRemaining: number) => {
     if (daysRemaining < 3) return "bg-red-50";
-    if (daysRemaining < 7) return "bg-amber-50";
+    if (daysRemaining < 7) return "bg-stone-50";
     return "";
   };
 
@@ -39,7 +39,7 @@ export function IngredientsReorderTable({ alerts }: IngredientsReorderTableProps
     }
     if (daysRemaining < 7) {
       return (
-        <Badge className="bg-amber-100 text-amber-800">Low</Badge>
+        <Badge className="bg-stone-100 text-stone-800">Low</Badge>
       );
     }
     return (

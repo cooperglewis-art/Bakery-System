@@ -56,15 +56,15 @@ export default function ResetPasswordPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-amber-50 to-orange-100 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-stone-50 to-stone-100 p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
-            <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-amber-600">
+            <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-stone-800">
               <ChefHat className="h-10 w-10 text-white" />
             </div>
           </div>
-          <CardTitle className="text-2xl text-amber-900">
+          <CardTitle className="text-2xl text-stone-900">
             Set New Password
           </CardTitle>
           <CardDescription>
@@ -99,7 +99,7 @@ export default function ResetPasswordPage() {
             </div>
             <Button
               type="submit"
-              className="w-full bg-amber-600 hover:bg-amber-700"
+              className="w-full bg-stone-800 hover:bg-stone-900"
               disabled={isLoading}
             >
               {isLoading ? (

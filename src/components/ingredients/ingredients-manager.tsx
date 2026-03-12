@@ -307,7 +307,7 @@ export function IngredientsManager({
           setForm(emptyForm);
           setAddOpen(true);
         }}
-        className="bg-amber-600 hover:bg-amber-700"
+        className="bg-stone-800 hover:bg-stone-900"
       >
         <Plus className="h-4 w-4 mr-2" />
         Add Ingredient
@@ -322,7 +322,7 @@ export function IngredientsManager({
           <Card key={category}>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Wheat className="h-5 w-5 text-amber-600" />
+                <Wheat className="h-5 w-5 text-stone-600" />
                 {category}
               </CardTitle>
               <CardDescription>
@@ -335,7 +335,7 @@ export function IngredientsManager({
                   <div
                     key={ingredient.id}
                     onClick={() => openEdit(ingredient)}
-                    className="flex items-start gap-3 rounded-lg border p-3 bg-white cursor-pointer hover:border-amber-300 hover:shadow-sm transition-all"
+                    className="flex items-start gap-3 rounded-lg border p-3 bg-white cursor-pointer hover:border-stone-300 hover:shadow-sm transition-all"
                   >
                     <div className="flex-1 min-w-0">
                       <p className="font-medium text-gray-900 truncate">
@@ -418,7 +418,7 @@ export function IngredientsManager({
             <Button
               onClick={handleAdd}
               disabled={saving}
-              className="bg-amber-600 hover:bg-amber-700"
+              className="bg-stone-800 hover:bg-stone-900"
             >
               {saving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
               Add Ingredient
@@ -457,7 +457,7 @@ export function IngredientsManager({
               <Button
                 onClick={handleEdit}
                 disabled={saving}
-                className="bg-amber-600 hover:bg-amber-700"
+                className="bg-stone-800 hover:bg-stone-900"
               >
                 {saving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
                 Save Changes

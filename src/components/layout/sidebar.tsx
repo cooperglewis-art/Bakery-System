@@ -39,21 +39,21 @@ export function Sidebar({ onSignOut }: SidebarProps) {
   const pathname = usePathname();
 
   return (
-    <div className="flex h-full w-64 flex-col bg-amber-50 border-r border-amber-200">
+    <div className="flex h-full w-64 flex-col bg-white/80 backdrop-blur-sm border-r border-border/60">
       {/* Logo */}
-      <div className="flex h-16 items-center gap-2 px-4 border-b border-amber-200">
-        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-600">
-          <ChefHat className="h-6 w-6 text-white" />
+      <div className="flex h-18 items-center gap-3 px-5 border-b border-border/60">
+        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary shadow-apple">
+          <ChefHat className="h-5 w-5 text-primary-foreground" />
         </div>
         <div className="flex flex-col">
-          <span className="text-sm font-semibold text-amber-900">Sweet Delights</span>
-          <span className="text-xs text-amber-600">Bakery</span>
+          <span className="text-sm font-semibold text-foreground tracking-tight">Sweet Delights</span>
+          <span className="text-xs text-muted-foreground">Bakery</span>
         </div>
       </div>
 
       {/* Navigation */}
-      <ScrollArea className="flex-1 px-3 py-4">
-        <nav className="space-y-1">
+      <ScrollArea className="flex-1 px-3 py-5">
+        <nav className="space-y-0.5">
           {navigation.map((item) => {
             const isActive = pathname === item.href ||
               (item.href !== "/dashboard" && pathname.startsWith(item.href));
@@ -63,13 +63,19 @@ export function Sidebar({ onSignOut }: SidebarProps) {
                 key={item.name}
                 href={item.href}
                 className={cn(
-                  "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
+                  "group relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200 ease-out",
                   isActive
-                    ? "bg-amber-200 text-amber-900"
-                    : "text-amber-700 hover:bg-amber-100 hover:text-amber-900"
+                    ? "bg-primary/8 text-primary"
+                    : "text-muted-foreground hover:bg-accent hover:text-foreground"
                 )}
               >
-                <item.icon className="h-5 w-5" />
+                {isActive && (
+                  <span className="absolute left-0 top-1/2 -translate-y-1/2 h-5 w-0.5 rounded-full bg-primary" />
+                )}
+                <item.icon className={cn(
+                  "h-[18px] w-[18px] transition-colors duration-200",
+                  isActive ? "text-primary" : "text-muted-foreground/70 group-hover:text-foreground"
+                )} />
                 {item.name}
               </Link>
             );
@@ -78,26 +84,26 @@ export function Sidebar({ onSignOut }: SidebarProps) {
       </ScrollArea>
 
       {/* Bottom section */}
-      <div className="border-t border-amber-200 p-3">
+      <div className="border-t border-border/60 p-3">
         <Link
           href="/dashboard/settings"
           className={cn(
-            "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
+            "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200 ease-out",
             pathname === "/dashboard/settings"
-              ? "bg-amber-200 text-amber-900"
-              : "text-amber-700 hover:bg-amber-100 hover:text-amber-900"
+              ? "bg-primary/8 text-primary"
+              : "text-muted-foreground hover:bg-accent hover:text-foreground"
           )}
         >
-          <Settings className="h-5 w-5" />
+          <Settings className="h-[18px] w-[18px]" />
           Settings
         </Link>
-        <Separator className="my-2 bg-amber-200" />
+        <Separator className="my-2 bg-border/60" />
         <Button
           variant="ghost"
-          className="w-full justify-start gap-3 text-amber-700 hover:bg-amber-100 hover:text-amber-900"
+          className="w-full justify-start gap-3 text-muted-foreground hover:bg-accent hover:text-foreground transition-all duration-200"
           onClick={onSignOut}
         >
-          <LogOut className="h-5 w-5" />
+          <LogOut className="h-[18px] w-[18px]" />
           Sign out
         </Button>
       </div>

@@ -255,8 +255,8 @@ export default function NewInvoicePage() {
             onDragLeave={handleDragLeave}
             className={`border-2 border-dashed rounded-lg p-12 text-center transition-colors ${
               isDragging
-                ? "border-amber-500 bg-amber-50"
-                : "border-gray-300 hover:border-amber-400"
+                ? "border-stone-500 bg-stone-50"
+                : "border-gray-300 hover:border-stone-400"
             }`}
           >
             <ImageIcon className="h-12 w-12 mx-auto text-gray-400" />
@@ -277,7 +277,7 @@ export default function NewInvoicePage() {
                   }
                 }}
               />
-              <span className="inline-flex items-center gap-2 px-4 py-2 rounded-md bg-amber-600 text-white text-sm font-medium cursor-pointer hover:bg-amber-700 transition-colors">
+              <span className="inline-flex items-center gap-2 px-4 py-2 rounded-md bg-stone-800 text-white text-sm font-medium cursor-pointer hover:bg-stone-900 transition-colors">
                 <Upload className="h-4 w-4" />
                 Choose Files
               </span>
@@ -308,7 +308,7 @@ export default function NewInvoicePage() {
                       : queued.status === "error"
                         ? "bg-red-50 border-red-200"
                         : queued.status === "processing" || queued.status === "saving"
-                          ? "bg-amber-50 border-amber-200"
+                          ? "bg-stone-50 border-stone-200"
                           : "bg-gray-50 border-gray-200"
                   }`}
                 >
@@ -341,7 +341,7 @@ export default function NewInvoicePage() {
 
                   {/* Status Icon */}
                   {queued.status === "processing" || queued.status === "saving" ? (
-                    <Loader2 className="h-5 w-5 animate-spin text-amber-600 shrink-0" />
+                    <Loader2 className="h-5 w-5 animate-spin text-stone-600 shrink-0" />
                   ) : queued.status === "done" ? (
                     queued.invoiceId ? (
                       <Link href={`/dashboard/invoices/${queued.invoiceId}`}>
@@ -372,16 +372,16 @@ export default function NewInvoicePage() {
 
       {/* Processing Status */}
       {processingFile && (
-        <Card className="border-amber-200 bg-amber-50">
+        <Card className="border-stone-200 bg-stone-50">
           <CardContent className="py-6">
             <div className="flex flex-col items-center gap-2">
-              <Loader2 className="h-8 w-8 animate-spin text-amber-600" />
-              <p className="text-amber-800 font-medium">
+              <Loader2 className="h-8 w-8 animate-spin text-stone-600" />
+              <p className="text-stone-800 font-medium">
                 {processingFile.status === "saving"
                   ? "Saving invoice..."
                   : "Analyzing invoice with AI..."}
               </p>
-              <p className="text-amber-600 text-sm">
+              <p className="text-stone-600 text-sm">
                 {processingFile.file.name}
               </p>
             </div>
@@ -397,7 +397,7 @@ export default function NewInvoicePage() {
         <Button
           onClick={handleSubmit}
           disabled={isSubmitting || pendingCount === 0}
-          className="bg-amber-600 hover:bg-amber-700"
+          className="bg-stone-800 hover:bg-stone-900"
         >
           {isSubmitting ? (
             <>

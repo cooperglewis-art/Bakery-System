@@ -82,7 +82,7 @@ export default async function ProductsPage({
             </Button>
           </Link>
           <Link href="/dashboard/products/new">
-            <Button className="bg-amber-600 hover:bg-amber-700">
+            <Button className="bg-stone-800 hover:bg-stone-900">
               <Plus className="h-4 w-4 mr-2" />
               Add Product
             </Button>
@@ -145,11 +145,11 @@ export default async function ProductsPage({
                 <TableBody>
                   {products && products.length > 0 ? (
                     products.map((product) => (
-                      <TableRow key={product.id} className="cursor-pointer hover:bg-amber-50">
+                      <TableRow key={product.id} className="cursor-pointer hover:bg-stone-50">
                         <TableCell>
                           <Link
                             href={`/dashboard/products/${product.id}`}
-                            className="font-medium text-amber-700 hover:underline"
+                            className="font-medium text-stone-700 hover:underline"
                           >
                             {product.name}
                           </Link>
@@ -207,12 +207,12 @@ export default async function ProductsPage({
           <div className="md:hidden space-y-4">
             {products && products.length > 0 ? (
               products.map((product) => (
-                <Card key={product.id} className="hover:border-amber-300 transition-colors">
+                <Card key={product.id} className="hover:border-stone-300 transition-colors">
                   <CardContent className="pt-4">
                     <div className="flex items-start justify-between">
                       <Link href={`/dashboard/products/${product.id}`} className="flex-1">
                         <div className="flex items-center gap-2">
-                          <p className="font-semibold text-amber-700">{product.name}</p>
+                          <p className="font-semibold text-stone-700">{product.name}</p>
                           <Badge
                             className={
                               product.is_active
@@ -273,14 +273,14 @@ export default async function ProductsPage({
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <Card>
           <CardContent className="pt-6 text-center">
-            <Package className="h-8 w-8 mx-auto text-amber-600" />
+            <Package className="h-8 w-8 mx-auto text-stone-600" />
             <p className="text-2xl font-bold mt-2">{totalCount}</p>
             <p className="text-sm text-gray-500">Total Products</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-6 text-center">
-            <Tag className="h-8 w-8 mx-auto text-amber-600" />
+            <Tag className="h-8 w-8 mx-auto text-stone-600" />
             <p className="text-2xl font-bold mt-2">{categories?.length || 0}</p>
             <p className="text-sm text-gray-500">Categories</p>
           </CardContent>

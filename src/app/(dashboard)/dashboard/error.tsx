@@ -18,8 +18,8 @@ export default function DashboardError({
   return (
     <div className="flex flex-col items-center justify-center min-h-[50vh] p-6">
       <div className="flex flex-col items-center gap-4 max-w-md text-center">
-        <div className="rounded-full bg-amber-100 p-3">
-          <AlertTriangle className="h-6 w-6 text-amber-600" />
+        <div className="rounded-full bg-stone-100 p-3">
+          <AlertTriangle className="h-6 w-6 text-stone-600" />
         </div>
         <h2 className="text-xl font-semibold text-gray-900">
           Something went wrong
@@ -30,7 +30,7 @@ export default function DashboardError({
         </p>
         <Button
           onClick={reset}
-          className="bg-amber-600 hover:bg-amber-700"
+          className="bg-stone-800 hover:bg-stone-900"
         >
           Try again
         </Button>

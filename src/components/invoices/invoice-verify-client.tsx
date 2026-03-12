@@ -459,7 +459,7 @@ export function InvoiceVerifyClient({
               <Package className="h-5 w-5" />
               Line Items
               {isLoadingMatches && (
-                <Loader2 className="h-4 w-4 animate-spin text-amber-600" />
+                <Loader2 className="h-4 w-4 animate-spin text-stone-600" />
               )}
             </CardTitle>
           </CardHeader>
@@ -581,7 +581,7 @@ export function InvoiceVerifyClient({
                               </SelectContent>
                             </Select>
                             {suggested && !item.ingredient_id && (
-                              <p className="text-xs text-amber-600">
+                              <p className="text-xs text-stone-600">
                                 Suggested: {suggested.ingredient_name} (
                                 {Math.round(suggested.confidence * 100)}%)
                               </p>

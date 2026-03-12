@@ -64,7 +64,7 @@ export function OrdersPagination({
           size="sm"
           onClick={() => goToPage(page)}
           className={
-            page === currentPage ? "bg-amber-600 hover:bg-amber-700" : ""
+            page === currentPage ? "bg-stone-800 hover:bg-stone-900" : ""
           }
         >
           {page}

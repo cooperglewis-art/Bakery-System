@@ -274,7 +274,7 @@ export function SettingsClient({
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <Loader2 className="h-8 w-8 animate-spin text-amber-600" />
+        <Loader2 className="h-8 w-8 animate-spin text-stone-600" />
       </div>
     );
   }
@@ -282,7 +282,7 @@ export function SettingsClient({
   return (
     <div className="p-6 max-w-4xl mx-auto space-y-6">
       <div className="flex items-center gap-3">
-        <Settings className="h-8 w-8 text-amber-600" />
+        <Settings className="h-8 w-8 text-stone-600" />
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Settings</h1>
           <p className="text-sm text-muted-foreground">
@@ -440,7 +440,7 @@ export function SettingsClient({
                 <div className="flex justify-end pt-4">
                   <Button
                     onClick={handleSaveGeneral}
-                    className="bg-amber-600 hover:bg-amber-700"
+                    className="bg-stone-800 hover:bg-stone-900"
                     disabled={savingGeneral}
                   >
                     {savingGeneral ? (
@@ -526,7 +526,7 @@ export function SettingsClient({
                     size="sm"
                     className={
                       settings.require_deposit
-                        ? "bg-amber-600 hover:bg-amber-700"
+                        ? "bg-stone-800 hover:bg-stone-900"
                         : ""
                     }
                     onClick={() =>
@@ -542,7 +542,7 @@ export function SettingsClient({
                 </div>
 
                 {Boolean(settings.require_deposit) && (
-                  <div className="space-y-2 pl-4 border-l-2 border-amber-200">
+                  <div className="space-y-2 pl-4 border-l-2 border-stone-200">
                     <Label htmlFor="default_deposit_percent">
                       Default Deposit (%)
                     </Label>
@@ -569,7 +569,7 @@ export function SettingsClient({
                 <div className="flex justify-end pt-4">
                   <Button
                     onClick={handleSaveOrders}
-                    className="bg-amber-600 hover:bg-amber-700"
+                    className="bg-stone-800 hover:bg-stone-900"
                     disabled={savingOrders}
                   >
                     {savingOrders ? (
@@ -611,7 +611,7 @@ export function SettingsClient({
                   size="sm"
                   className={
                     settings.notifications_new_order
-                      ? "bg-amber-600 hover:bg-amber-700"
+                      ? "bg-stone-800 hover:bg-stone-900"
                       : ""
                   }
                   onClick={() =>
@@ -644,7 +644,7 @@ export function SettingsClient({
                   size="sm"
                   className={
                     settings.notifications_status_change
-                      ? "bg-amber-600 hover:bg-amber-700"
+                      ? "bg-stone-800 hover:bg-stone-900"
                       : ""
                   }
                   onClick={() =>
@@ -688,7 +688,7 @@ export function SettingsClient({
                 <div className="flex justify-end pt-4">
                   <Button
                     onClick={handleSaveNotifications}
-                    className="bg-amber-600 hover:bg-amber-700"
+                    className="bg-stone-800 hover:bg-stone-900"
                     disabled={savingNotifications}
                   >
                     {savingNotifications ? (
@@ -717,7 +717,7 @@ export function SettingsClient({
               <CardContent>
                 {loadingTeam ? (
                   <div className="flex items-center justify-center py-8">
-                    <Loader2 className="h-6 w-6 animate-spin text-amber-600" />
+                    <Loader2 className="h-6 w-6 animate-spin text-stone-600" />
                   </div>
                 ) : teamMembers.length === 0 ? (
                   <p className="text-sm text-muted-foreground text-center py-8">
@@ -731,7 +731,7 @@ export function SettingsClient({
                         className="flex items-center justify-between rounded-lg border p-4"
                       >
                         <div className="flex items-center gap-3">
-                          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-amber-100 text-amber-700 font-semibold">
+                          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-stone-100 text-stone-700 font-semibold">
                             {member.full_name
                               .split(" ")
                               .map((n) => n[0])
@@ -745,7 +745,7 @@ export function SettingsClient({
                               {member.id === userId && (
                                 <Badge
                                   variant="secondary"
-                                  className="text-xs bg-amber-100 text-amber-700"
+                                  className="text-xs bg-stone-100 text-stone-700"
                                 >
                                   You
                                 </Badge>
@@ -840,7 +840,7 @@ export function SettingsClient({
                 <div className="flex justify-end pt-2">
                   <Button
                     onClick={handleSaveAccount}
-                    className="bg-amber-600 hover:bg-amber-700"
+                    className="bg-stone-800 hover:bg-stone-900"
                     disabled={savingAccount}
                   >
                     {savingAccount ? (
@@ -895,7 +895,7 @@ export function SettingsClient({
                 <div className="flex justify-end">
                   <Button
                     onClick={handleChangePassword}
-                    className="bg-amber-600 hover:bg-amber-700"
+                    className="bg-stone-800 hover:bg-stone-900"
                     disabled={savingPassword || !newPassword || !confirmPassword}
                   >
                     {savingPassword ? (

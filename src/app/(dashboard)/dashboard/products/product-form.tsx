@@ -187,7 +187,7 @@ export function ProductForm({ categories, product }: ProductFormProps) {
               id="is_active"
               checked={isActive}
               onChange={(e) => setIsActive(e.target.checked)}
-              className="h-4 w-4 rounded border-gray-300 text-amber-600 focus:ring-amber-500"
+              className="h-4 w-4 rounded border-gray-300 text-stone-600 focus:ring-stone-500"
             />
             <Label htmlFor="is_active">Active product</Label>
             <span className="text-sm text-gray-500">
@@ -208,7 +208,7 @@ export function ProductForm({ categories, product }: ProductFormProps) {
         </Button>
         <Button
           type="submit"
-          className="bg-amber-600 hover:bg-amber-700"
+          className="bg-stone-800 hover:bg-stone-900"
           disabled={saving}
         >
           {saving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}

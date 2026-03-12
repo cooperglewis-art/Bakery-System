@@ -308,8 +308,8 @@ export default async function AnalyticsPage() {
           label="Orders (This Month)"
           value={thisMonthOrderCount.toString()}
           change={orderCountChange}
-          icon={<ShoppingBag className="h-5 w-5 text-amber-600" />}
-          iconBg="bg-amber-100"
+          icon={<ShoppingBag className="h-5 w-5 text-stone-600" />}
+          iconBg="bg-stone-100"
         />
         <SummaryCard
           label="Avg Order Value"

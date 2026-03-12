@@ -37,18 +37,18 @@ export function MobileNav({ onSignOut }: MobileNavProps) {
   return (
     <>
       {/* Top header bar for mobile */}
-      <div className="fixed top-0 left-0 right-0 z-40 flex h-14 items-center justify-between border-b border-amber-200 bg-amber-50 px-4 md:hidden">
-        <div className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-600">
-            <span className="text-sm font-bold text-white">SD</span>
+      <div className="fixed top-0 left-0 right-0 z-40 flex h-14 items-center justify-between border-b border-border/60 bg-white/80 backdrop-blur-md px-4 md:hidden">
+        <div className="flex items-center gap-2.5">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary shadow-sm">
+            <span className="text-xs font-bold text-primary-foreground">SD</span>
           </div>
-          <span className="font-semibold text-amber-900">Sweet Delights</span>
+          <span className="font-semibold text-foreground tracking-tight">Sweet Delights</span>
         </div>
 
         <Sheet>
           <SheetTrigger asChild>
-            <Button variant="ghost" size="icon" className="text-amber-700">
-              <Menu className="h-6 w-6" />
+            <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground transition-colors duration-200">
+              <Menu className="h-5 w-5" />
             </Button>
           </SheetTrigger>
           <SheetContent side="left" className="w-64 p-0">
@@ -58,7 +58,7 @@ export function MobileNav({ onSignOut }: MobileNavProps) {
       </div>
 
       {/* Bottom navigation bar for mobile */}
-      <nav className="fixed bottom-0 left-0 right-0 z-40 border-t border-amber-200 bg-white md:hidden">
+      <nav className="fixed bottom-0 left-0 right-0 z-40 border-t border-border/60 bg-white/90 backdrop-blur-md md:hidden">
         <div className="flex h-14 items-center justify-around">
           {bottomNavItems.map((item) => {
             const isActive = pathname === item.href ||
@@ -69,19 +69,19 @@ export function MobileNav({ onSignOut }: MobileNavProps) {
                 key={item.name}
                 href={item.href}
                 className={cn(
-                  "flex flex-col items-center gap-0.5 px-2 py-1.5 text-[10px] transition-colors",
+                  "flex flex-col items-center gap-0.5 px-2 py-1.5 text-[10px] transition-colors duration-200",
                   isActive
-                    ? "text-amber-700"
-                    : "text-gray-400"
+                    ? "text-primary"
+                    : "text-muted-foreground/60"
                 )}
               >
                 <item.icon className={cn(
-                  "h-5 w-5",
-                  isActive ? "text-amber-600" : "text-gray-400"
+                  "h-5 w-5 transition-colors duration-200",
+                  isActive ? "text-primary" : "text-muted-foreground/50"
                 )} />
                 <span className={cn(
                   "font-medium",
-                  isActive && "text-amber-700"
+                  isActive && "text-primary"
                 )}>{item.name}</span>
               </Link>
             );
