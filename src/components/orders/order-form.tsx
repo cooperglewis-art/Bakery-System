@@ -112,6 +112,10 @@ export function OrderForm({
     ]
   );
 
+  const [productPopoverOpen, setProductPopoverOpen] = useState<
+    Record<string, boolean>
+  >({});
+
   const selectedCustomer = customers.find((c) => c.id === customerId) ?? null;
 
   const filteredCustomers = customers.filter(
@@ -406,28 +410,70 @@ export function OrderForm({
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="md:col-span-2 space-y-2">
                   <Label>Product</Label>
-                  <Select
-                    value={item.productId || ""}
-                    onValueChange={(value) =>
-                      handleSelectProduct(item.id, value)
+                  <Popover
+                    open={productPopoverOpen[item.id] ?? false}
+                    onOpenChange={(open) =>
+                      setProductPopoverOpen((prev) => ({
+                        ...prev,
+                        [item.id]: open,
+                      }))
                     }
                   >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select product" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {products.map((product) => (
-                        <SelectItem key={product.id} value={product.id}>
-                          <div className="flex justify-between items-center gap-4">
-                            <span>{product.name}</span>
-                            <span className="text-gray-500">
-                              ${product.base_price.toFixed(2)}
-                            </span>
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        role="combobox"
+                        className="w-full justify-between"
+                      >
+                        {item.productId ? (
+                          <span>{item.productName}</span>
+                        ) : (
+                          <span className="text-gray-500">
+                            Search products...
+                          </span>
+                        )}
+                        <Search className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-full p-0" align="start">
+                      <Command>
+                        <CommandInput placeholder="Search products..." />
+                        <CommandList>
+                          <CommandEmpty>
+                            <div className="p-2 text-center">
+                              <p className="text-sm text-gray-500">
+                                No product found
+                              </p>
+                            </div>
+                          </CommandEmpty>
+                          <CommandGroup>
+                            {products.map((product) => (
+                              <CommandItem
+                                key={product.id}
+                                value={product.name}
+                                onSelect={() => {
+                                  handleSelectProduct(item.id, product.id);
+                                  setProductPopoverOpen((prev) => ({
+                                    ...prev,
+                                    [item.id]: false,
+                                  }));
+                                }}
+                              >
+                                <div className="flex justify-between items-center w-full">
+                                  <span className="font-medium">
+                                    {product.name}
+                                  </span>
+                                  <span className="text-sm text-gray-500">
+                                    ${product.base_price.toFixed(2)}
+                                  </span>
+                                </div>
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
                 </div>
 
                 <div className="space-y-2">
