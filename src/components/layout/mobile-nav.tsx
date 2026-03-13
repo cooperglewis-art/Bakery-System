@@ -27,11 +27,7 @@ const bottomNavItems = [
   { name: "Invoices", href: "/dashboard/invoices", icon: Receipt },
 ];
 
-interface MobileNavProps {
-  onSignOut?: () => void;
-}
-
-export function MobileNav({ onSignOut }: MobileNavProps) {
+export function MobileNav() {
   const pathname = usePathname();
 
   return (
@@ -52,7 +48,7 @@ export function MobileNav({ onSignOut }: MobileNavProps) {
             </Button>
           </SheetTrigger>
           <SheetContent side="left" className="w-64 p-0">
-            <Sidebar onSignOut={onSignOut} />
+            <Sidebar />
           </SheetContent>
         </Sheet>
       </div>

@@ -13,12 +13,11 @@ import {
   TrendingUp,
   BarChart3,
   Settings,
-  LogOut,
   ChefHat,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
+import { SignOutButton } from "./sign-out-button";
 
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
@@ -31,11 +30,7 @@ const navigation = [
   { name: "Analytics", href: "/dashboard/analytics", icon: BarChart3 },
 ];
 
-interface SidebarProps {
-  onSignOut?: () => void;
-}
-
-export function Sidebar({ onSignOut }: SidebarProps) {
+export function Sidebar() {
   const pathname = usePathname();
 
   return (
@@ -98,14 +93,7 @@ export function Sidebar({ onSignOut }: SidebarProps) {
           Settings
         </Link>
         <Separator className="my-2 bg-border/60" />
-        <Button
-          variant="ghost"
-          className="w-full justify-start gap-3 text-muted-foreground hover:bg-accent hover:text-foreground transition-all duration-200"
-          onClick={onSignOut}
-        >
-          <LogOut className="h-[18px] w-[18px]" />
-          Sign out
-        </Button>
+        <SignOutButton />
       </div>
     </div>
   );
