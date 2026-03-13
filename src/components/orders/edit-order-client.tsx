@@ -63,12 +63,38 @@ export function EditOrderClient({
     setIsLoading(true);
 
     try {
-      const subtotal = data.orderItems.reduce(
-        (sum, item) => sum + item.quantity * item.unitPrice,
+      const validItems = data.orderItems.filter((item) => item.productName);
+      const orderItemsData = validItems.map((item) => ({
+        order_id: order.id,
+        product_id: item.productId,
+        product_name: item.productName,
+        quantity: item.quantity,
+        unit_price: item.unitPrice,
+        notes: item.notes || null,
+      }));
+
+      // Recalculate from items to ensure integrity
+      const subtotal = orderItemsData.reduce(
+        (sum, item) => sum + item.quantity * item.unit_price,
         0
       );
-      const tax = subtotal * TAX_RATE;
+      const tax = Math.round(subtotal * TAX_RATE * 100) / 100;
       const total = subtotal + tax;
+
+      // Save original order values for potential rollback
+      const originalOrder = {
+        customer_id: order.customer_id,
+        source: order.source,
+        delivery_date: order.delivery_date,
+        delivery_time_slot: order.delivery_time_slot,
+        is_delivery: order.is_delivery,
+        delivery_address: order.delivery_address,
+        subtotal: order.subtotal,
+        tax: order.tax,
+        total: order.total,
+        deposit_paid: order.deposit_paid,
+        notes: order.notes,
+      };
 
       const { error: orderError } = await supabase
         .from("orders")
@@ -95,29 +121,42 @@ export function EditOrderClient({
 
       if (orderError) throw orderError;
 
+      // Save existing items for potential rollback
+      const { data: existingItems } = await supabase
+        .from("order_items")
+        .select()
+        .eq("order_id", order.id);
+
       // Delete existing items and re-insert
       const { error: deleteError } = await supabase
         .from("order_items")
         .delete()
         .eq("order_id", order.id);
 
-      if (deleteError) throw deleteError;
-
-      const validItems = data.orderItems.filter((item) => item.productName);
-      const orderItemsData = validItems.map((item) => ({
-        order_id: order.id,
-        product_id: item.productId,
-        product_name: item.productName,
-        quantity: item.quantity,
-        unit_price: item.unitPrice,
-        notes: item.notes || null,
-      }));
+      if (deleteError) {
+        // Rollback order update
+        await supabase
+          .from("orders")
+          .update(originalOrder)
+          .eq("id", order.id);
+        throw deleteError;
+      }
 
       const { error: itemsError } = await supabase
         .from("order_items")
         .insert(orderItemsData);
 
-      if (itemsError) throw itemsError;
+      if (itemsError) {
+        // Rollback: restore original order and items
+        await supabase
+          .from("orders")
+          .update(originalOrder)
+          .eq("id", order.id);
+        if (existingItems && existingItems.length > 0) {
+          await supabase.from("order_items").insert(existingItems);
+        }
+        throw itemsError;
+      }
 
       toast.success(`Order ${formatOrderNumber(order.order_number)} updated!`);
       router.push(`/dashboard/orders/${order.id}`);

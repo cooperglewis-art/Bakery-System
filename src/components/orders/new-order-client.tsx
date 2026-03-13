@@ -34,11 +34,21 @@ export function NewOrderClient({ customers, products }: NewOrderClientProps) {
     setIsLoading(true);
 
     try {
-      const subtotal = data.orderItems.reduce(
-        (sum, item) => sum + item.quantity * item.unitPrice,
+      const validItems = data.orderItems.filter((item) => item.productName);
+      const orderItemsData = validItems.map((item) => ({
+        product_id: item.productId,
+        product_name: item.productName,
+        quantity: item.quantity,
+        unit_price: item.unitPrice,
+        notes: item.notes || null,
+      }));
+
+      // Recalculate from items to ensure integrity
+      const subtotal = orderItemsData.reduce(
+        (sum, item) => sum + item.quantity * item.unit_price,
         0
       );
-      const tax = subtotal * TAX_RATE;
+      const tax = Math.round(subtotal * TAX_RATE * 100) / 100;
       const total = subtotal + tax;
 
       const orderData = {
@@ -71,21 +81,20 @@ export function NewOrderClient({ customers, products }: NewOrderClientProps) {
       if (orderError) throw orderError;
       if (!order) throw new Error("Failed to create order");
 
-      const validItems = data.orderItems.filter((item) => item.productName);
-      const orderItemsData = validItems.map((item) => ({
+      const orderItemsWithOrderId = orderItemsData.map((item) => ({
+        ...item,
         order_id: order.id,
-        product_id: item.productId,
-        product_name: item.productName,
-        quantity: item.quantity,
-        unit_price: item.unitPrice,
-        notes: item.notes || null,
       }));
 
       const { error: itemsError } = await supabase
         .from("order_items")
-        .insert(orderItemsData);
+        .insert(orderItemsWithOrderId);
 
-      if (itemsError) throw itemsError;
+      if (itemsError) {
+        // Cleanup: delete the orphaned order
+        await supabase.from("orders").delete().eq("id", order.id);
+        throw itemsError;
+      }
 
       if (data.customerId) {
         await supabase.rpc("increment_customer_order_count", {

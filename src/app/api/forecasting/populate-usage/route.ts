@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { addDays, parseISO, format, differenceInDays } from "date-fns";
+import { z } from "zod";
+
+const populateSchema = z.object({
+  startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  endDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+});
 
 export async function POST(request: NextRequest) {
   try {
@@ -11,14 +17,11 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { startDate, endDate } = body;
-
-    if (!startDate || !endDate) {
-      return NextResponse.json(
-        { error: "startDate and endDate are required" },
-        { status: 400 }
-      );
+    const result = populateSchema.safeParse(body);
+    if (!result.success) {
+      return NextResponse.json({ error: "Invalid input", details: result.error.flatten() }, { status: 400 });
     }
+    const { startDate, endDate } = result.data;
     const start = parseISO(startDate);
     const end = parseISO(endDate);
     const totalDays = differenceInDays(end, start) + 1;

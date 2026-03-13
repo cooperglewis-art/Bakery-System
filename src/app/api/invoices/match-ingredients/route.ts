@@ -1,5 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { z } from "zod";
+
+const matchSchema = z.object({
+  descriptions: z.array(z.string().max(500)).max(100),
+});
 
 export async function POST(request: NextRequest) {
   try {
@@ -9,16 +14,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { descriptions } = (await request.json()) as {
-      descriptions: string[];
-    };
-
-    if (!descriptions || !Array.isArray(descriptions)) {
-      return NextResponse.json(
-        { error: "descriptions array is required" },
-        { status: 400 }
-      );
+    const rawBody = await request.json();
+    const result = matchSchema.safeParse(rawBody);
+    if (!result.success) {
+      return NextResponse.json({ error: "Invalid input", details: result.error.flatten() }, { status: 400 });
     }
+    const { descriptions } = result.data;
 
     // Fetch all ingredients
     const { data: ingredients, error } = await supabase

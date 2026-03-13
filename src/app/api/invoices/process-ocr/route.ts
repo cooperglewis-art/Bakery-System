@@ -11,6 +11,9 @@ const SUPPORTED_IMAGE_TYPES = [
 ];
 
 export async function POST(request: NextRequest) {
+  let fileName: string | null = null;
+  let supabaseAdmin: ReturnType<typeof createClient> | null = null;
+
   try {
     const supabase = await createServerClient();
     const { data: { user }, error: authError } = await supabase.auth.getUser();
@@ -44,12 +47,12 @@ export async function POST(request: NextRequest) {
     const base64 = buffer.toString("base64");
 
     // Upload to Supabase Storage using service role key
-    const supabaseAdmin = createClient(
+    supabaseAdmin = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY!
     );
 
-    const fileName = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, "_")}`;
+    fileName = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, "_")}`;
     const { data: uploadData, error: uploadError } = await supabaseAdmin.storage
       .from("invoices")
       .upload(fileName, buffer, {
@@ -149,6 +152,9 @@ Rules:
       extractedData = JSON.parse(jsonStr);
     } catch {
       console.error("Failed to parse Claude response:", responseText);
+      if (fileName && supabaseAdmin) {
+        await supabaseAdmin.storage.from("invoices").remove([fileName]);
+      }
       return NextResponse.json(
         { error: "Failed to parse OCR results" },
         { status: 500 }
@@ -161,6 +167,9 @@ Rules:
     });
   } catch (error) {
     console.error("OCR processing error:", error);
+    if (fileName && supabaseAdmin) {
+      await supabaseAdmin.storage.from("invoices").remove([fileName]);
+    }
     return NextResponse.json(
       { error: "Failed to process invoice" },
       { status: 500 }

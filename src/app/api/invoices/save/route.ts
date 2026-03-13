@@ -1,5 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { z } from "zod";
+
+const saveInvoiceSchema = z.object({
+  supplier_name: z.string().min(1).max(200),
+  invoice_number: z.string().max(100).optional().nullable(),
+  invoice_date: z.string().optional().nullable(),
+  total_amount: z.number().min(0).optional().nullable(),
+  image_url: z.string().optional().nullable(),
+  ocr_confidence: z.number().optional().nullable(),
+  due_date: z.string().optional().nullable(),
+  line_items: z.array(z.object({
+    description: z.string().max(500),
+    quantity: z.number().optional().nullable(),
+    unit: z.string().max(50).optional().nullable(),
+    unit_cost: z.number().optional().nullable(),
+    total_cost: z.number().optional().nullable(),
+  })).optional().default([]),
+});
 
 export async function POST(request: NextRequest) {
   try {
@@ -9,7 +27,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const body = await request.json();
+    const rawBody = await request.json();
+    const result = saveInvoiceSchema.safeParse(rawBody);
+    if (!result.success) {
+      return NextResponse.json({ error: "Invalid input", details: result.error.flatten() }, { status: 400 });
+    }
+    const body = result.data;
 
     const { data: invoice, error: invoiceError } = await supabase
       .from("invoices")
@@ -37,7 +60,7 @@ export async function POST(request: NextRequest) {
     // Save line items
     if (body.line_items && body.line_items.length > 0) {
       const itemsToInsert = body.line_items.map(
-        (item: { description?: string; quantity?: number; unit?: string; unit_cost?: number }) => ({
+        (item: { description?: string | null; quantity?: number | null; unit?: string | null; unit_cost?: number | null; total_cost?: number | null }) => ({
           invoice_id: invoice.id,
           description: item.description || "",
           quantity: item.quantity || 0,
