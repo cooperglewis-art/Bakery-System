@@ -4,6 +4,12 @@ import { addDays, parseISO, format, differenceInDays } from "date-fns";
 
 export async function POST(request: NextRequest) {
   try {
+    const supabase = await createClient();
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (authError || !user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const body = await request.json();
     const { startDate, endDate } = body;
 
@@ -13,8 +19,6 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-
-    const supabase = await createClient();
     const start = parseISO(startDate);
     const end = parseISO(endDate);
     const totalDays = differenceInDays(end, start) + 1;

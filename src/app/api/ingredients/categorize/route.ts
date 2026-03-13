@@ -4,6 +4,10 @@ import { categorizeIngredient } from "@/lib/ingredient-categories";
 
 export async function POST() {
   const supabase = await createClient();
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  if (authError || !user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
   const { data: ingredients, error: fetchError } = await supabase
     .from("ingredients")
