@@ -16,13 +16,21 @@
 - [ ] Create demo login account (signup via the app or Supabase dashboard)
 - [x] Verify all seed data is loaded in database — all counts confirmed
 
+## Security (Completed)
+- [x] Add authentication checks to all API routes — 401 on unauthenticated
+- [x] Fix open redirect in auth callback — only allows /dashboard paths
+- [x] Add Zod input validation to all API routes — 400 on invalid input
+- [x] Invoice OCR cleanup — delete uploaded file from storage on failure
+- [x] Server-side order total recalculation — prevents client tampering
+- [x] Order creation transaction safety — cleanup on partial failure
+
 ## Post-Demo Polish
 - [ ] Add product images/photos to product pages
 - [ ] Add Stripe test key for payment processing (if POS is re-added)
 - [ ] Configure Supabase email provider for password reset emails
 - [ ] Verify forgot password and signup email verification flows
 - [ ] Add notification bell/dropdown in header for alerts
-- [ ] Connect POS tax rate to business_settings instead of hardcoded 7.5%
+- [ ] Connect order tax rate to business_settings instead of hardcoded 7.5%
 - [ ] Loading transitions between pages
 - [ ] Dark mode support (CSS variables already set up)
 
