@@ -18,6 +18,8 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { SignOutButton } from "./sign-out-button";
+import { ThemeToggle } from "./theme-toggle";
+import { NotificationsDropdown } from "./notifications-dropdown";
 
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
@@ -34,16 +36,19 @@ export function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <div className="flex h-full w-64 flex-col bg-white/80 backdrop-blur-sm border-r border-border/60">
+    <div className="flex h-full w-64 flex-col bg-card/80 backdrop-blur-sm border-r border-border/60">
       {/* Logo */}
-      <div className="flex h-18 items-center gap-3 px-5 border-b border-border/60">
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary shadow-apple">
-          <ChefHat className="h-5 w-5 text-primary-foreground" />
+      <div className="flex h-18 items-center justify-between px-5 border-b border-border/60">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary shadow-apple">
+            <ChefHat className="h-5 w-5 text-primary-foreground" />
+          </div>
+          <div className="flex flex-col">
+            <span className="text-sm font-semibold text-foreground tracking-tight">Sweet Delights</span>
+            <span className="text-xs text-muted-foreground">Bakery</span>
+          </div>
         </div>
-        <div className="flex flex-col">
-          <span className="text-sm font-semibold text-foreground tracking-tight">Sweet Delights</span>
-          <span className="text-xs text-muted-foreground">Bakery</span>
-        </div>
+        <NotificationsDropdown />
       </div>
 
       {/* Navigation */}
@@ -92,6 +97,9 @@ export function Sidebar() {
           <Settings className="h-[18px] w-[18px]" />
           Settings
         </Link>
+        <div className="flex items-center justify-between">
+          <ThemeToggle />
+        </div>
         <Separator className="my-2 bg-border/60" />
         <SignOutButton />
       </div>

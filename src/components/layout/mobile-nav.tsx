@@ -18,6 +18,8 @@ import {
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Sidebar } from "./sidebar";
+import { ThemeToggle } from "./theme-toggle";
+import { NotificationsDropdown } from "./notifications-dropdown";
 
 const bottomNavItems = [
   { name: "Home", href: "/dashboard", icon: LayoutDashboard },
@@ -33,7 +35,7 @@ export function MobileNav() {
   return (
     <>
       {/* Top header bar for mobile */}
-      <div className="fixed top-0 left-0 right-0 z-40 flex h-14 items-center justify-between border-b border-border/60 bg-white/80 backdrop-blur-md px-4 md:hidden">
+      <div className="fixed top-0 left-0 right-0 z-40 flex h-14 items-center justify-between border-b border-border/60 bg-card/80 backdrop-blur-md px-4 md:hidden">
         <div className="flex items-center gap-2.5">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary shadow-sm">
             <span className="text-xs font-bold text-primary-foreground">SD</span>
@@ -41,20 +43,24 @@ export function MobileNav() {
           <span className="font-semibold text-foreground tracking-tight">Sweet Delights</span>
         </div>
 
-        <Sheet>
-          <SheetTrigger asChild>
-            <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground transition-colors duration-200">
-              <Menu className="h-5 w-5" />
-            </Button>
-          </SheetTrigger>
-          <SheetContent side="left" className="w-64 p-0">
-            <Sidebar />
-          </SheetContent>
-        </Sheet>
+        <div className="flex items-center gap-1">
+          <NotificationsDropdown />
+          <ThemeToggle />
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground transition-colors duration-200">
+                <Menu className="h-5 w-5" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="left" className="w-64 p-0">
+              <Sidebar />
+            </SheetContent>
+          </Sheet>
+        </div>
       </div>
 
       {/* Bottom navigation bar for mobile */}
-      <nav className="fixed bottom-0 left-0 right-0 z-40 border-t border-border/60 bg-white/90 backdrop-blur-md md:hidden">
+      <nav className="fixed bottom-0 left-0 right-0 z-40 border-t border-border/60 bg-card/90 backdrop-blur-md md:hidden">
         <div className="flex h-14 items-center justify-around">
           {bottomNavItems.map((item) => {
             const isActive = pathname === item.href ||
