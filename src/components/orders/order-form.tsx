@@ -37,7 +37,7 @@ import {
   Loader2,
 } from "lucide-react";
 import type { Customer, Product, Category } from "@/types/database";
-import { TAX_RATE, TAX_RATE_DISPLAY, TIME_SLOTS } from "@/lib/config";
+import { TIME_SLOTS } from "@/lib/config";
 
 export interface OrderItemData {
   id: string;
@@ -67,6 +67,7 @@ interface OrderFormProps {
   onSubmit: (data: OrderFormData) => Promise<void>;
   submitLabel: string;
   isSubmitting?: boolean;
+  taxRate: number;
 }
 
 export function OrderForm({
@@ -76,6 +77,7 @@ export function OrderForm({
   onSubmit,
   submitLabel,
   isSubmitting = false,
+  taxRate,
 }: OrderFormProps) {
   const [customerId, setCustomerId] = useState<string | null>(
     initialData?.customerId ?? null
@@ -128,7 +130,7 @@ export function OrderForm({
     (sum, item) => sum + item.quantity * item.unitPrice,
     0
   );
-  const tax = subtotal * TAX_RATE;
+  const tax = subtotal * taxRate;
   const total = subtotal + tax;
 
   const handleSelectCustomer = (customer: Customer) => {
@@ -595,7 +597,7 @@ export function OrderForm({
               <span>${subtotal.toFixed(2)}</span>
             </div>
             <div className="flex justify-between text-gray-500">
-              <span>Tax ({TAX_RATE_DISPLAY})</span>
+              <span>Tax ({(taxRate * 100).toFixed(1)}%)</span>
               <span>${tax.toFixed(2)}</span>
             </div>
             <div className="flex justify-between text-lg font-bold border-t pt-2">

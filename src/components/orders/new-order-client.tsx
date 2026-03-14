@@ -6,16 +6,16 @@ import { createClient } from "@/lib/supabase/client";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { OrderForm, type OrderFormData } from "@/components/orders/order-form";
-import { TAX_RATE } from "@/lib/config";
 import type { Customer, Product, Category } from "@/types/database";
 import { formatOrderNumber } from "@/lib/order-number";
 
 interface NewOrderClientProps {
   customers: Customer[];
   products: (Product & { category: Category | null })[];
+  taxRate: number;
 }
 
-export function NewOrderClient({ customers, products }: NewOrderClientProps) {
+export function NewOrderClient({ customers, products, taxRate }: NewOrderClientProps) {
   const router = useRouter();
   const supabase = createClient();
   const [isLoading, setIsLoading] = useState(false);
@@ -48,7 +48,7 @@ export function NewOrderClient({ customers, products }: NewOrderClientProps) {
         (sum, item) => sum + item.quantity * item.unit_price,
         0
       );
-      const tax = Math.round(subtotal * TAX_RATE * 100) / 100;
+      const tax = Math.round(subtotal * taxRate * 100) / 100;
       const total = subtotal + tax;
 
       const orderData = {
@@ -119,6 +119,7 @@ export function NewOrderClient({ customers, products }: NewOrderClientProps) {
       onSubmit={handleSubmit}
       submitLabel="Create Order"
       isSubmitting={isLoading}
+      taxRate={taxRate}
     />
   );
 }

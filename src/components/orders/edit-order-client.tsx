@@ -7,7 +7,6 @@ import { toast } from "sonner";
 import { format, parseISO } from "date-fns";
 import { OrderForm, type OrderFormData } from "@/components/orders/order-form";
 import type { Order, Customer, OrderItem, Product, Category } from "@/types/database";
-import { TAX_RATE } from "@/lib/config";
 import { formatOrderNumber } from "@/lib/order-number";
 
 type OrderWithItems = Order & {
@@ -19,12 +18,14 @@ interface EditOrderClientProps {
   order: OrderWithItems;
   customers: Customer[];
   products: (Product & { category: Category | null })[];
+  taxRate: number;
 }
 
 export function EditOrderClient({
   order,
   customers,
   products,
+  taxRate,
 }: EditOrderClientProps) {
   const router = useRouter();
   const supabase = createClient();
@@ -78,7 +79,7 @@ export function EditOrderClient({
         (sum, item) => sum + item.quantity * item.unit_price,
         0
       );
-      const tax = Math.round(subtotal * TAX_RATE * 100) / 100;
+      const tax = Math.round(subtotal * taxRate * 100) / 100;
       const total = subtotal + tax;
 
       // Save original order values for potential rollback
@@ -176,6 +177,7 @@ export function EditOrderClient({
       onSubmit={handleSubmit}
       submitLabel="Update Order"
       isSubmitting={isLoading}
+      taxRate={taxRate}
     />
   );
 }

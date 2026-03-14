@@ -8,19 +8,25 @@ import type { Customer, Product, Category } from "@/types/database";
 export default async function NewOrderPage() {
   const supabase = await createClient();
 
-  const [customersRes, productsRes] = await Promise.all([
+  const [customersRes, productsRes, taxSettingRes] = await Promise.all([
     supabase.from("customers").select("*").order("name"),
     supabase
       .from("products")
       .select("*, category:categories(*)")
       .eq("is_active", true)
       .order("name"),
+    supabase
+      .from("business_settings")
+      .select("value")
+      .eq("key", "tax_rate")
+      .single(),
   ]);
 
   const customers = (customersRes.data || []) as Customer[];
   const products = (productsRes.data || []) as (Product & {
     category: Category | null;
   })[];
+  const taxRate = (taxSettingRes.data?.value as number) ?? 0.075;
 
   return (
     <div className="p-4 md:p-6 max-w-4xl mx-auto">
@@ -36,7 +42,7 @@ export default async function NewOrderPage() {
         </div>
       </div>
 
-      <NewOrderClient customers={customers} products={products} />
+      <NewOrderClient customers={customers} products={products} taxRate={taxRate} />
     </div>
   );
 }
