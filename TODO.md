@@ -30,9 +30,16 @@
 - [ ] Configure Supabase email provider for password reset emails
 - [ ] Verify forgot password and signup email verification flows
 - [ ] Add notification bell/dropdown in header for alerts
-- [ ] Connect order tax rate to business_settings instead of hardcoded 7.5%
-- [ ] Loading transitions between pages
+- [x] Connect order tax rate to business_settings — dynamic, falls back to 7.5%
+- [x] Loading skeletons on all dashboard pages
+- [x] Searchable product dropdown in order form
 - [ ] Dark mode support (CSS variables already set up)
+
+## Code Quality (Completed)
+- [x] README with features, tech stack, and setup instructions
+- [x] .env.example with all required variables
+- [x] Vitest test suite — 28 tests (rate limiting, order numbers, validation schemas)
+- [x] Fix inconsistent created_by foreign keys — all reference auth.users(id)
 
 ## Future Features
 - [ ] Customer-facing order portal (customers can place orders online)
