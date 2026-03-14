@@ -9,6 +9,7 @@ import { OrderForm, type OrderFormData } from "@/components/orders/order-form";
 import type { Order, Customer, OrderItem, Product, Category } from "@/types/database";
 import { TAX_RATE } from "@/lib/config";
 import { formatOrderNumber } from "@/lib/order-number";
+import { calculateOrderTotals } from "@/lib/orders/totals";
 
 type OrderWithItems = Order & {
   customer: Customer | null;
@@ -19,12 +20,16 @@ interface EditOrderClientProps {
   order: OrderWithItems;
   customers: Customer[];
   products: (Product & { category: Category | null })[];
+  taxRate?: number;
+  orderNumberPrefix?: string;
 }
 
 export function EditOrderClient({
   order,
   customers,
   products,
+  taxRate = TAX_RATE,
+  orderNumberPrefix,
 }: EditOrderClientProps) {
   const router = useRouter();
   const supabase = createClient();
@@ -74,12 +79,13 @@ export function EditOrderClient({
       }));
 
       // Recalculate from items to ensure integrity
-      const subtotal = orderItemsData.reduce(
-        (sum, item) => sum + item.quantity * item.unit_price,
-        0
+      const { subtotal, tax, total } = calculateOrderTotals(
+        orderItemsData.map((item) => ({
+          quantity: item.quantity,
+          unitPrice: item.unit_price,
+        })),
+        taxRate
       );
-      const tax = Math.round(subtotal * TAX_RATE * 100) / 100;
-      const total = subtotal + tax;
 
       // Save original order values for potential rollback
       const originalOrder = {
@@ -158,7 +164,9 @@ export function EditOrderClient({
         throw itemsError;
       }
 
-      toast.success(`Order ${formatOrderNumber(order.order_number)} updated!`);
+      toast.success(
+        `Order ${formatOrderNumber(order.order_number, orderNumberPrefix)} updated!`
+      );
       router.push(`/dashboard/orders/${order.id}`);
     } catch (error) {
       console.error("Error updating order:", error);
@@ -174,6 +182,7 @@ export function EditOrderClient({
       customers={customers}
       products={products}
       onSubmit={handleSubmit}
+      taxRate={taxRate}
       submitLabel="Update Order"
       isSubmitting={isLoading}
     />

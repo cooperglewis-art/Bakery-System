@@ -9,13 +9,21 @@ import { OrderForm, type OrderFormData } from "@/components/orders/order-form";
 import { TAX_RATE } from "@/lib/config";
 import type { Customer, Product, Category } from "@/types/database";
 import { formatOrderNumber } from "@/lib/order-number";
+import { calculateOrderTotals } from "@/lib/orders/totals";
 
 interface NewOrderClientProps {
   customers: Customer[];
   products: (Product & { category: Category | null })[];
+  taxRate?: number;
+  orderNumberPrefix?: string;
 }
 
-export function NewOrderClient({ customers, products }: NewOrderClientProps) {
+export function NewOrderClient({
+  customers,
+  products,
+  taxRate = TAX_RATE,
+  orderNumberPrefix,
+}: NewOrderClientProps) {
   const router = useRouter();
   const supabase = createClient();
   const [isLoading, setIsLoading] = useState(false);
@@ -34,6 +42,13 @@ export function NewOrderClient({ customers, products }: NewOrderClientProps) {
     setIsLoading(true);
 
     try {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) {
+        throw new Error("Unauthorized");
+      }
+
       const validItems = data.orderItems.filter((item) => item.productName);
       const orderItemsData = validItems.map((item) => ({
         product_id: item.productId,
@@ -44,12 +59,13 @@ export function NewOrderClient({ customers, products }: NewOrderClientProps) {
       }));
 
       // Recalculate from items to ensure integrity
-      const subtotal = orderItemsData.reduce(
-        (sum, item) => sum + item.quantity * item.unit_price,
-        0
+      const { subtotal, tax, total } = calculateOrderTotals(
+        orderItemsData.map((item) => ({
+          quantity: item.quantity,
+          unitPrice: item.unit_price,
+        })),
+        taxRate
       );
-      const tax = Math.round(subtotal * TAX_RATE * 100) / 100;
-      const total = subtotal + tax;
 
       const orderData = {
         customer_id: data.customerId,
@@ -70,6 +86,7 @@ export function NewOrderClient({ customers, products }: NewOrderClientProps) {
         deposit_paid: data.depositPaid,
         notes: data.notes || null,
         status: "pending" as const,
+        created_by: user.id,
       };
 
       const { data: order, error: orderError } = await supabase
@@ -102,7 +119,9 @@ export function NewOrderClient({ customers, products }: NewOrderClientProps) {
         });
       }
 
-      toast.success(`Order ${formatOrderNumber(order.order_number)} created!`);
+      toast.success(
+        `Order ${formatOrderNumber(order.order_number, orderNumberPrefix)} created!`
+      );
       router.push(`/dashboard/orders/${order.id}`);
     } catch (error) {
       console.error("Error creating order:", error);
@@ -117,6 +136,7 @@ export function NewOrderClient({ customers, products }: NewOrderClientProps) {
       customers={customers}
       products={products}
       onSubmit={handleSubmit}
+      taxRate={taxRate}
       submitLabel="Create Order"
       isSubmitting={isLoading}
     />

@@ -18,6 +18,9 @@ CREATE POLICY "Admins can manage settings" ON business_settings
   FOR ALL TO authenticated
   USING (
     EXISTS (SELECT 1 FROM profiles WHERE profiles.id = auth.uid() AND profiles.role = 'admin')
+  )
+  WITH CHECK (
+    EXISTS (SELECT 1 FROM profiles WHERE profiles.id = auth.uid() AND profiles.role = 'admin')
   );
 
 -- Seed default settings

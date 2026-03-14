@@ -67,9 +67,6 @@ export default async function InvoiceDetailPage({
       fileType = "pdf";
     }
 
-    console.log("[Invoice Debug] image_url:", invoice.image_url);
-    console.log("[Invoice Debug] storagePath:", storagePath);
-
     // Use service role client for storage access (files were uploaded with service role)
     const supabaseAdmin = createAdminClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -80,12 +77,11 @@ export default async function InvoiceDetailPage({
       .from("invoices")
       .createSignedUrl(storagePath, 3600); // 1 hour expiry
 
-    console.log("[Invoice Debug] signedUrl:", signedData?.signedUrl ? "OK" : "null");
-    console.log("[Invoice Debug] signedError:", signedError);
+    if (signedError) {
+      console.error("Failed to create signed invoice URL:", signedError);
+    }
 
     signedImageUrl = signedData?.signedUrl || null;
-  } else {
-    console.log("[Invoice Debug] No image_url on invoice", invoice.id);
   }
 
   return (

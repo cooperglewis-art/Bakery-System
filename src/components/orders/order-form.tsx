@@ -37,7 +37,8 @@ import {
   Loader2,
 } from "lucide-react";
 import type { Customer, Product, Category } from "@/types/database";
-import { TAX_RATE, TAX_RATE_DISPLAY, TIME_SLOTS } from "@/lib/config";
+import { TAX_RATE, TIME_SLOTS, formatTaxRateDisplay } from "@/lib/config";
+import { calculateOrderTotals } from "@/lib/orders/totals";
 
 export interface OrderItemData {
   id: string;
@@ -65,6 +66,7 @@ interface OrderFormProps {
   customers: Customer[];
   products: (Product & { category: Category | null })[];
   onSubmit: (data: OrderFormData) => Promise<void>;
+  taxRate?: number;
   submitLabel: string;
   isSubmitting?: boolean;
 }
@@ -74,6 +76,7 @@ export function OrderForm({
   customers,
   products,
   onSubmit,
+  taxRate = TAX_RATE,
   submitLabel,
   isSubmitting = false,
 }: OrderFormProps) {
@@ -124,12 +127,13 @@ export function OrderForm({
       c.phone?.includes(customerSearch)
   );
 
-  const subtotal = orderItems.reduce(
-    (sum, item) => sum + item.quantity * item.unitPrice,
-    0
+  const { subtotal, tax, total } = calculateOrderTotals(
+    orderItems.map((item) => ({
+      quantity: item.quantity,
+      unitPrice: item.unitPrice,
+    })),
+    taxRate
   );
-  const tax = subtotal * TAX_RATE;
-  const total = subtotal + tax;
 
   const handleSelectCustomer = (customer: Customer) => {
     setCustomerId(customer.id);
@@ -595,7 +599,7 @@ export function OrderForm({
               <span>${subtotal.toFixed(2)}</span>
             </div>
             <div className="flex justify-between text-gray-500">
-              <span>Tax ({TAX_RATE_DISPLAY})</span>
+              <span>Tax ({formatTaxRateDisplay(taxRate)})</span>
               <span>${tax.toFixed(2)}</span>
             </div>
             <div className="flex justify-between text-lg font-bold border-t pt-2">

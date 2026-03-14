@@ -23,6 +23,7 @@ import { Plus, Search, Filter, ClipboardList } from "lucide-react";
 import Link from "next/link";
 import { format } from "date-fns";
 import { OrdersPagination } from "@/components/orders/orders-pagination";
+import { getBusinessRuntimeSettings } from "@/lib/business-settings";
 
 export const metadata = { title: "Orders" };
 
@@ -56,6 +57,7 @@ export default async function OrdersPage({
 }) {
   const params = await searchParams;
   const supabase = await createClient();
+  const settings = await getBusinessRuntimeSettings(supabase);
   const currentPage = Math.max(1, parseInt(params.page || "1"));
   const offset = (currentPage - 1) * PAGE_SIZE;
 
@@ -183,7 +185,7 @@ export default async function OrdersPage({
                         href={`/dashboard/orders/${order.id}`}
                         className="font-medium text-stone-700 hover:underline"
                       >
-                        {formatOrderNumber(order.order_number)}
+                        {formatOrderNumber(order.order_number, settings.orderNumberPrefix)}
                       </Link>
                     </TableCell>
                     <TableCell>
@@ -259,7 +261,7 @@ export default async function OrdersPage({
                     <div>
                       <div className="flex items-center gap-2">
                         <span className="font-semibold text-stone-700">
-                          {formatOrderNumber(order.order_number)}
+                          {formatOrderNumber(order.order_number, settings.orderNumberPrefix)}
                         </span>
                         <Badge className={statusColors[order.status]}>
                           {statusLabels[order.status]}

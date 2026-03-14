@@ -168,7 +168,7 @@ WITH new_order AS (
 INSERT INTO order_items (order_id, product_id, product_name, quantity, unit_price) VALUES
   ((SELECT id FROM new_order), (SELECT id FROM products WHERE name = 'Birthday Cake (10")' LIMIT 1), 'Birthday Cake (10")', 1, 65.00),
   ((SELECT id FROM new_order), (SELECT id FROM products WHERE name = 'Cupcakes (Dozen)' LIMIT 1), 'Cupcakes (Dozen)', 1, 36.00),
-  ((SELECT id FROM new_order), (SELECT id FROM products WHERE name = 'Chocolate Chip Cookies (Dozen)' LIMIT 1), 'Chocolate Chip Cookies (Dozen)', 0.5, 18.00);
+  ((SELECT id FROM new_order), (SELECT id FROM products WHERE name = 'Chocolate Chip Cookies (Dozen)' LIMIT 1), 'Chocolate Chip Cookies (Dozen)', 1, 9.00);
 
 -- Order 4: 50 days ago - completed, text, pickup
 WITH new_order AS (

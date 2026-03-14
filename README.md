@@ -1,36 +1,98 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Bakery System
 
-## Getting Started
+Bakery System is a Next.js + Supabase app for:
+- Order management
+- Customer tracking
+- Supplier invoice capture (OCR)
+- Ingredient matching and cost tracking
+- Forecasting and analytics dashboards
 
-First, run the development server:
+## 1. Requirements
 
+- Node.js 20+
+- npm 10+
+- Supabase project
+- Anthropic API key (for invoice OCR)
+
+## 2. Environment Setup
+
+1. Copy env template:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+cp .env.example .env.local
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Fill values in `.env.local`:
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `SUPABASE_SERVICE_ROLE_KEY`
+- `ANTHROPIC_API_KEY`
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 3. Database Setup
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Apply schema and migrations in your Supabase project:
 
-## Learn More
+```bash
+supabase db push
+```
 
-To learn more about Next.js, take a look at the following resources:
+Seed core data:
+```bash
+psql "$SUPABASE_DB_URL" -f supabase/seed.sql
+psql "$SUPABASE_DB_URL" -f supabase/demo-seed.sql
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Notes:
+- The latest migration (`20260313090000_security_hardening.sql`) applies tenant-scoped security hardening and ownership defaults.
+- Invoice files are scoped by user folder in storage: `invoices/<auth.uid()>/...`
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 4. Run Locally
 
-## Deploy on Vercel
+Install dependencies:
+```bash
+npm ci
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Start dev server:
+```bash
+npm run dev
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Open:
+- [http://localhost:3000](http://localhost:3000)
+
+## 5. Demo Login
+
+Create a demo user through the app:
+- `/login` -> sign up
+
+Then sign in and open:
+- `/dashboard`
+
+## 6. Quality Checks
+
+Lint:
+```bash
+npm run lint
+```
+
+Type check:
+```bash
+npx tsc --noEmit
+```
+
+Production build:
+```bash
+npm run build
+```
+
+## 7. Deployment
+
+Recommended:
+- Vercel for Next.js app
+- Supabase for Postgres/Auth/Storage
+
+Before production:
+- Rotate all API keys
+- Configure Supabase email provider
+- Create at least one admin account in `profiles`
+- Verify RLS and storage policies in production project

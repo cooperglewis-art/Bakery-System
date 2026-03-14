@@ -6,6 +6,7 @@ import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { EditOrderClient } from "@/components/orders/edit-order-client";
 import type { Order, Customer, OrderItem, Product, Category } from "@/types/database";
+import { getBusinessRuntimeSettings } from "@/lib/business-settings";
 
 type OrderWithItems = Order & {
   customer: Customer | null;
@@ -47,6 +48,7 @@ export default async function EditOrderPage({
   const products = (productsRes.data || []) as (Product & {
     category: Category | null;
   })[];
+  const settings = await getBusinessRuntimeSettings(supabase);
 
   return (
     <div className="p-4 md:p-6 max-w-4xl mx-auto">
@@ -58,7 +60,7 @@ export default async function EditOrderPage({
         </Link>
         <div>
           <h1 className="text-2xl font-bold text-gray-900">
-            Edit Order {formatOrderNumber(order.order_number)}
+            Edit Order {formatOrderNumber(order.order_number, settings.orderNumberPrefix)}
           </h1>
           <p className="text-gray-500">Update order details</p>
         </div>
@@ -68,6 +70,8 @@ export default async function EditOrderPage({
         order={order}
         customers={customers}
         products={products}
+        taxRate={settings.taxRate}
+        orderNumberPrefix={settings.orderNumberPrefix}
       />
     </div>
   );

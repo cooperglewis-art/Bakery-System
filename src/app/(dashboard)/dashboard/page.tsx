@@ -23,6 +23,7 @@ import {
 import Link from "next/link";
 import { format, subDays } from "date-fns";
 import type { Order, OrderItem } from "@/types/database";
+import { getBusinessRuntimeSettings } from "@/lib/business-settings";
 
 export const metadata = { title: "Dashboard" };
 
@@ -71,6 +72,7 @@ const statusLabels: Record<string, string> = {
 
 export default async function DashboardPage() {
   const supabase = await createClient();
+  const settings = await getBusinessRuntimeSettings(supabase);
 
   const today = format(new Date(), "yyyy-MM-dd");
   const tomorrow = format(new Date(Date.now() + 86400000), "yyyy-MM-dd");
@@ -319,7 +321,7 @@ export default async function DashboardPage() {
                     >
                       <div className="flex items-center gap-3">
                         <span className="text-sm font-medium text-stone-800">
-                          {formatOrderNumber(order.order_number)}
+                          {formatOrderNumber(order.order_number, settings.orderNumberPrefix)}
                         </span>
                         <span className="text-sm text-stone-500">
                           {order.customer?.name || "Walk-in"}
@@ -357,7 +359,7 @@ export default async function DashboardPage() {
                     >
                       <div className="flex items-center gap-3">
                         <span className="text-sm font-medium text-stone-800">
-                          {formatOrderNumber(order.order_number)}
+                          {formatOrderNumber(order.order_number, settings.orderNumberPrefix)}
                         </span>
                         <span className="text-sm text-stone-500">
                           {order.customer?.name || "Walk-in"}
@@ -400,7 +402,7 @@ export default async function DashboardPage() {
                     >
                       <div className="flex items-center gap-3">
                         <span className="text-sm font-medium text-stone-800">
-                          {formatOrderNumber(order.order_number)}
+                          {formatOrderNumber(order.order_number, settings.orderNumberPrefix)}
                         </span>
                         <span className="text-sm text-stone-500">
                           {order.customer?.name || "Walk-in"}
@@ -485,7 +487,7 @@ export default async function DashboardPage() {
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2.5 flex-wrap">
                             <span className="font-semibold text-stone-900 text-sm">
-                              {formatOrderNumber(order.order_number)}
+                              {formatOrderNumber(order.order_number, settings.orderNumberPrefix)}
                             </span>
                             <Badge className={statusColors[order.status]}>
                               {statusLabels[order.status]}

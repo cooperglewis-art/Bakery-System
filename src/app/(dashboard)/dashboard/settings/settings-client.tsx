@@ -251,12 +251,13 @@ export function SettingsClient({
   };
 
   const handleRoleChange = async (profileId: string, role: "admin" | "staff") => {
-    const { error } = await supabase
-      .from("profiles")
-      .update({ role, updated_at: new Date().toISOString() })
-      .eq("id", profileId);
+    const response = await fetch("/api/settings/team/role", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ profileId, role }),
+    });
 
-    if (error) {
+    if (!response.ok) {
       toast.error("Failed to update role");
       return;
     }

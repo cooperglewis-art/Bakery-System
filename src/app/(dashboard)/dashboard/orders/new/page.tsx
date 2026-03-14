@@ -4,6 +4,7 @@ import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { NewOrderClient } from "@/components/orders/new-order-client";
 import type { Customer, Product, Category } from "@/types/database";
+import { getBusinessRuntimeSettings } from "@/lib/business-settings";
 
 export default async function NewOrderPage() {
   const supabase = await createClient();
@@ -16,6 +17,7 @@ export default async function NewOrderPage() {
       .eq("is_active", true)
       .order("name"),
   ]);
+  const settings = await getBusinessRuntimeSettings(supabase);
 
   const customers = (customersRes.data || []) as Customer[];
   const products = (productsRes.data || []) as (Product & {
@@ -36,7 +38,12 @@ export default async function NewOrderPage() {
         </div>
       </div>
 
-      <NewOrderClient customers={customers} products={products} />
+      <NewOrderClient
+        customers={customers}
+        products={products}
+        taxRate={settings.taxRate}
+        orderNumberPrefix={settings.orderNumberPrefix}
+      />
     </div>
   );
 }

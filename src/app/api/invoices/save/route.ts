@@ -54,6 +54,7 @@ export async function POST(request: NextRequest) {
         ocr_confidence: body.ocr_confidence != null ? body.ocr_confidence : null,
         due_date: body.due_date || null,
         status: "processed",
+        created_by: user.id,
       })
       .select()
       .single();

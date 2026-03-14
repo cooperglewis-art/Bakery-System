@@ -12,7 +12,7 @@ const SUPPORTED_IMAGE_TYPES = [
 ];
 
 export async function POST(request: NextRequest) {
-  let fileName: string | null = null;
+  let storagePath: string | null = null;
   let supabaseAdmin: ReturnType<typeof createClient> | null = null;
 
   try {
@@ -61,10 +61,13 @@ export async function POST(request: NextRequest) {
       process.env.SUPABASE_SERVICE_ROLE_KEY!
     );
 
-    fileName = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, "_")}`;
+    storagePath = `${user.id}/${Date.now()}-${file.name.replace(
+      /[^a-zA-Z0-9.-]/g,
+      "_"
+    )}`;
     const { data: uploadData, error: uploadError } = await supabaseAdmin.storage
       .from("invoices")
-      .upload(fileName, buffer, {
+      .upload(storagePath, buffer, {
         contentType: file.type,
         upsert: false,
       });
@@ -76,8 +79,6 @@ export async function POST(request: NextRequest) {
         { status: 500 }
       );
     }
-
-    const storagePath = uploadData.path;
 
     // Send to Claude for OCR extraction
     const anthropic = new Anthropic({
@@ -161,8 +162,8 @@ Rules:
       extractedData = JSON.parse(jsonStr);
     } catch {
       console.error("Failed to parse Claude response:", responseText);
-      if (fileName && supabaseAdmin) {
-        await supabaseAdmin.storage.from("invoices").remove([fileName]);
+      if (storagePath && supabaseAdmin) {
+        await supabaseAdmin.storage.from("invoices").remove([storagePath]);
       }
       return NextResponse.json(
         { error: "Failed to parse OCR results" },
@@ -176,8 +177,8 @@ Rules:
     });
   } catch (error) {
     console.error("OCR processing error:", error);
-    if (fileName && supabaseAdmin) {
-      await supabaseAdmin.storage.from("invoices").remove([fileName]);
+    if (storagePath && supabaseAdmin) {
+      await supabaseAdmin.storage.from("invoices").remove([storagePath]);
     }
     return NextResponse.json(
       { error: "Failed to process invoice" },

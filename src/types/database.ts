@@ -35,6 +35,29 @@ export interface Database {
           updated_at?: string;
         };
       };
+      business_settings: {
+        Row: {
+          id: string;
+          key: string;
+          value: Json;
+          updated_by: string | null;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          key: string;
+          value: Json;
+          updated_by?: string | null;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          key?: string;
+          value?: Json;
+          updated_by?: string | null;
+          updated_at?: string;
+        };
+      };
       customers: {
         Row: {
           id: string;
@@ -43,6 +66,7 @@ export interface Database {
           email: string | null;
           notes: string | null;
           order_count: number;
+          created_by: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -53,6 +77,7 @@ export interface Database {
           email?: string | null;
           notes?: string | null;
           order_count?: number;
+          created_by?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -63,6 +88,7 @@ export interface Database {
           email?: string | null;
           notes?: string | null;
           order_count?: number;
+          created_by?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -73,6 +99,7 @@ export interface Database {
           name: string;
           description: string | null;
           display_order: number;
+          created_by: string | null;
           created_at: string;
         };
         Insert: {
@@ -80,6 +107,7 @@ export interface Database {
           name: string;
           description?: string | null;
           display_order?: number;
+          created_by?: string | null;
           created_at?: string;
         };
         Update: {
@@ -87,6 +115,7 @@ export interface Database {
           name?: string;
           description?: string | null;
           display_order?: number;
+          created_by?: string | null;
           created_at?: string;
         };
       };
@@ -99,6 +128,7 @@ export interface Database {
           base_price: number;
           is_active: boolean;
           prep_time_hours: number;
+          created_by: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -110,6 +140,7 @@ export interface Database {
           base_price: number;
           is_active?: boolean;
           prep_time_hours?: number;
+          created_by?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -121,6 +152,7 @@ export interface Database {
           base_price?: number;
           is_active?: boolean;
           prep_time_hours?: number;
+          created_by?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -135,6 +167,7 @@ export interface Database {
           category: string;
           min_stock_level: number | null;
           current_stock: number;
+          created_by: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -147,6 +180,7 @@ export interface Database {
           category?: string;
           min_stock_level?: number | null;
           current_stock?: number;
+          created_by?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -159,6 +193,7 @@ export interface Database {
           category?: string;
           min_stock_level?: number | null;
           current_stock?: number;
+          created_by?: string | null;
           created_at?: string;
           updated_at?: string;
         };

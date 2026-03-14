@@ -22,6 +22,7 @@ CREATE TABLE customers (
   email TEXT,
   notes TEXT,
   order_count INTEGER DEFAULT 0,
+  created_by UUID REFERENCES auth.users(id) DEFAULT auth.uid(),
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW(),
   UNIQUE(phone)
@@ -33,6 +34,7 @@ CREATE TABLE categories (
   name TEXT NOT NULL UNIQUE,
   description TEXT,
   display_order INTEGER DEFAULT 0,
+  created_by UUID REFERENCES auth.users(id) DEFAULT auth.uid(),
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
@@ -45,6 +47,7 @@ CREATE TABLE products (
   base_price DECIMAL(10,2) NOT NULL,
   is_active BOOLEAN DEFAULT true,
   prep_time_hours INTEGER DEFAULT 24,
+  created_by UUID REFERENCES auth.users(id) DEFAULT auth.uid(),
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -59,6 +62,7 @@ CREATE TABLE ingredients (
   category TEXT DEFAULT 'Other',
   min_stock_level DECIMAL(10,2),
   current_stock DECIMAL(10,2) DEFAULT 0,
+  created_by UUID REFERENCES auth.users(id) DEFAULT auth.uid(),
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -91,7 +95,7 @@ CREATE TABLE orders (
   total DECIMAL(10,2) NOT NULL DEFAULT 0,
   deposit_paid DECIMAL(10,2) DEFAULT 0,
   notes TEXT,
-  created_by UUID REFERENCES profiles(id) ON DELETE SET NULL,
+  created_by UUID REFERENCES profiles(id) ON DELETE SET NULL DEFAULT auth.uid(),
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -121,7 +125,7 @@ CREATE TABLE invoices (
   ocr_confidence DECIMAL(3,2),
   status TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'processed', 'verified')),
   due_date DATE,
-  created_by UUID REFERENCES profiles(id) ON DELETE SET NULL,
+  created_by UUID REFERENCES profiles(id) ON DELETE SET NULL DEFAULT auth.uid(),
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -176,42 +180,164 @@ ALTER TABLE invoices ENABLE ROW LEVEL SECURITY;
 ALTER TABLE invoice_items ENABLE ROW LEVEL SECURITY;
 ALTER TABLE ingredient_usage_daily ENABLE ROW LEVEL SECURITY;
 
--- Policies: Authenticated users can read all data
+-- Policies: Tenant-scoped data access
 CREATE POLICY "Authenticated users can view profiles" ON profiles
   FOR SELECT TO authenticated USING (true);
 
 CREATE POLICY "Users can update own profile" ON profiles
   FOR UPDATE TO authenticated USING (auth.uid() = id);
 
-CREATE POLICY "Authenticated users can view customers" ON customers
-  FOR ALL TO authenticated USING (true) WITH CHECK (true);
+CREATE POLICY "Users can view own customers" ON customers
+  FOR SELECT TO authenticated USING (created_by = auth.uid());
 
-CREATE POLICY "Authenticated users can manage categories" ON categories
-  FOR ALL TO authenticated USING (true) WITH CHECK (true);
+CREATE POLICY "Users can insert own customers" ON customers
+  FOR INSERT TO authenticated WITH CHECK (created_by = auth.uid());
 
-CREATE POLICY "Authenticated users can manage products" ON products
-  FOR ALL TO authenticated USING (true) WITH CHECK (true);
+CREATE POLICY "Users can update own customers" ON customers
+  FOR UPDATE TO authenticated
+  USING (created_by = auth.uid())
+  WITH CHECK (created_by = auth.uid());
 
-CREATE POLICY "Authenticated users can manage ingredients" ON ingredients
-  FOR ALL TO authenticated USING (true) WITH CHECK (true);
+CREATE POLICY "Users can delete own customers" ON customers
+  FOR DELETE TO authenticated USING (created_by = auth.uid());
 
-CREATE POLICY "Authenticated users can manage product_ingredients" ON product_ingredients
-  FOR ALL TO authenticated USING (true) WITH CHECK (true);
+CREATE POLICY "Users can view own categories" ON categories
+  FOR SELECT TO authenticated USING (created_by = auth.uid());
 
-CREATE POLICY "Authenticated users can manage orders" ON orders
-  FOR ALL TO authenticated USING (true) WITH CHECK (true);
+CREATE POLICY "Users can insert own categories" ON categories
+  FOR INSERT TO authenticated WITH CHECK (created_by = auth.uid());
 
-CREATE POLICY "Authenticated users can manage order_items" ON order_items
-  FOR ALL TO authenticated USING (true) WITH CHECK (true);
+CREATE POLICY "Users can update own categories" ON categories
+  FOR UPDATE TO authenticated
+  USING (created_by = auth.uid())
+  WITH CHECK (created_by = auth.uid());
 
-CREATE POLICY "Authenticated users can manage invoices" ON invoices
-  FOR ALL TO authenticated USING (true) WITH CHECK (true);
+CREATE POLICY "Users can delete own categories" ON categories
+  FOR DELETE TO authenticated USING (created_by = auth.uid());
 
-CREATE POLICY "Authenticated users can manage invoice_items" ON invoice_items
-  FOR ALL TO authenticated USING (true) WITH CHECK (true);
+CREATE POLICY "Users can view own products" ON products
+  FOR SELECT TO authenticated USING (created_by = auth.uid());
 
-CREATE POLICY "Authenticated users can manage ingredient_usage_daily" ON ingredient_usage_daily
-  FOR ALL TO authenticated USING (true) WITH CHECK (true);
+CREATE POLICY "Users can insert own products" ON products
+  FOR INSERT TO authenticated WITH CHECK (created_by = auth.uid());
+
+CREATE POLICY "Users can update own products" ON products
+  FOR UPDATE TO authenticated
+  USING (created_by = auth.uid())
+  WITH CHECK (created_by = auth.uid());
+
+CREATE POLICY "Users can delete own products" ON products
+  FOR DELETE TO authenticated USING (created_by = auth.uid());
+
+CREATE POLICY "Users can view own ingredients" ON ingredients
+  FOR SELECT TO authenticated USING (created_by = auth.uid());
+
+CREATE POLICY "Users can insert own ingredients" ON ingredients
+  FOR INSERT TO authenticated WITH CHECK (created_by = auth.uid());
+
+CREATE POLICY "Users can update own ingredients" ON ingredients
+  FOR UPDATE TO authenticated
+  USING (created_by = auth.uid())
+  WITH CHECK (created_by = auth.uid());
+
+CREATE POLICY "Users can delete own ingredients" ON ingredients
+  FOR DELETE TO authenticated USING (created_by = auth.uid());
+
+CREATE POLICY "Users can view own orders" ON orders
+  FOR SELECT TO authenticated USING (created_by = auth.uid());
+
+CREATE POLICY "Users can insert own orders" ON orders
+  FOR INSERT TO authenticated WITH CHECK (created_by = auth.uid());
+
+CREATE POLICY "Users can update own orders" ON orders
+  FOR UPDATE TO authenticated
+  USING (created_by = auth.uid())
+  WITH CHECK (created_by = auth.uid());
+
+CREATE POLICY "Users can delete own orders" ON orders
+  FOR DELETE TO authenticated USING (created_by = auth.uid());
+
+CREATE POLICY "Users can view own invoices" ON invoices
+  FOR SELECT TO authenticated USING (created_by = auth.uid());
+
+CREATE POLICY "Users can insert own invoices" ON invoices
+  FOR INSERT TO authenticated WITH CHECK (created_by = auth.uid());
+
+CREATE POLICY "Users can update own invoices" ON invoices
+  FOR UPDATE TO authenticated
+  USING (created_by = auth.uid())
+  WITH CHECK (created_by = auth.uid());
+
+CREATE POLICY "Users can delete own invoices" ON invoices
+  FOR DELETE TO authenticated USING (created_by = auth.uid());
+
+CREATE POLICY "Users can view own order items" ON order_items
+  FOR SELECT TO authenticated
+  USING (EXISTS (SELECT 1 FROM orders WHERE orders.id = order_items.order_id AND orders.created_by = auth.uid()));
+
+CREATE POLICY "Users can insert own order items" ON order_items
+  FOR INSERT TO authenticated
+  WITH CHECK (EXISTS (SELECT 1 FROM orders WHERE orders.id = order_items.order_id AND orders.created_by = auth.uid()));
+
+CREATE POLICY "Users can update own order items" ON order_items
+  FOR UPDATE TO authenticated
+  USING (EXISTS (SELECT 1 FROM orders WHERE orders.id = order_items.order_id AND orders.created_by = auth.uid()))
+  WITH CHECK (EXISTS (SELECT 1 FROM orders WHERE orders.id = order_items.order_id AND orders.created_by = auth.uid()));
+
+CREATE POLICY "Users can delete own order items" ON order_items
+  FOR DELETE TO authenticated
+  USING (EXISTS (SELECT 1 FROM orders WHERE orders.id = order_items.order_id AND orders.created_by = auth.uid()));
+
+CREATE POLICY "Users can view own invoice items" ON invoice_items
+  FOR SELECT TO authenticated
+  USING (EXISTS (SELECT 1 FROM invoices WHERE invoices.id = invoice_items.invoice_id AND invoices.created_by = auth.uid()));
+
+CREATE POLICY "Users can insert own invoice items" ON invoice_items
+  FOR INSERT TO authenticated
+  WITH CHECK (EXISTS (SELECT 1 FROM invoices WHERE invoices.id = invoice_items.invoice_id AND invoices.created_by = auth.uid()));
+
+CREATE POLICY "Users can update own invoice items" ON invoice_items
+  FOR UPDATE TO authenticated
+  USING (EXISTS (SELECT 1 FROM invoices WHERE invoices.id = invoice_items.invoice_id AND invoices.created_by = auth.uid()))
+  WITH CHECK (EXISTS (SELECT 1 FROM invoices WHERE invoices.id = invoice_items.invoice_id AND invoices.created_by = auth.uid()));
+
+CREATE POLICY "Users can delete own invoice items" ON invoice_items
+  FOR DELETE TO authenticated
+  USING (EXISTS (SELECT 1 FROM invoices WHERE invoices.id = invoice_items.invoice_id AND invoices.created_by = auth.uid()));
+
+CREATE POLICY "Users can view own product ingredients" ON product_ingredients
+  FOR SELECT TO authenticated
+  USING (EXISTS (SELECT 1 FROM products WHERE products.id = product_ingredients.product_id AND products.created_by = auth.uid()));
+
+CREATE POLICY "Users can insert own product ingredients" ON product_ingredients
+  FOR INSERT TO authenticated
+  WITH CHECK (EXISTS (SELECT 1 FROM products WHERE products.id = product_ingredients.product_id AND products.created_by = auth.uid()));
+
+CREATE POLICY "Users can update own product ingredients" ON product_ingredients
+  FOR UPDATE TO authenticated
+  USING (EXISTS (SELECT 1 FROM products WHERE products.id = product_ingredients.product_id AND products.created_by = auth.uid()))
+  WITH CHECK (EXISTS (SELECT 1 FROM products WHERE products.id = product_ingredients.product_id AND products.created_by = auth.uid()));
+
+CREATE POLICY "Users can delete own product ingredients" ON product_ingredients
+  FOR DELETE TO authenticated
+  USING (EXISTS (SELECT 1 FROM products WHERE products.id = product_ingredients.product_id AND products.created_by = auth.uid()));
+
+CREATE POLICY "Users can view own ingredient usage" ON ingredient_usage_daily
+  FOR SELECT TO authenticated
+  USING (EXISTS (SELECT 1 FROM ingredients WHERE ingredients.id = ingredient_usage_daily.ingredient_id AND ingredients.created_by = auth.uid()));
+
+CREATE POLICY "Users can insert own ingredient usage" ON ingredient_usage_daily
+  FOR INSERT TO authenticated
+  WITH CHECK (EXISTS (SELECT 1 FROM ingredients WHERE ingredients.id = ingredient_usage_daily.ingredient_id AND ingredients.created_by = auth.uid()));
+
+CREATE POLICY "Users can update own ingredient usage" ON ingredient_usage_daily
+  FOR UPDATE TO authenticated
+  USING (EXISTS (SELECT 1 FROM ingredients WHERE ingredients.id = ingredient_usage_daily.ingredient_id AND ingredients.created_by = auth.uid()))
+  WITH CHECK (EXISTS (SELECT 1 FROM ingredients WHERE ingredients.id = ingredient_usage_daily.ingredient_id AND ingredients.created_by = auth.uid()));
+
+CREATE POLICY "Users can delete own ingredient usage" ON ingredient_usage_daily
+  FOR DELETE TO authenticated
+  USING (EXISTS (SELECT 1 FROM ingredients WHERE ingredients.id = ingredient_usage_daily.ingredient_id AND ingredients.created_by = auth.uid()));
 
 -- Function to create profile on user signup
 CREATE OR REPLACE FUNCTION public.handle_new_user()
@@ -276,12 +402,37 @@ CREATE INDEX idx_order_status_history_changed_at ON order_status_history(changed
 
 ALTER TABLE order_status_history ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "Authenticated users can manage order_status_history" ON order_status_history
-  FOR ALL TO authenticated USING (true) WITH CHECK (true);
+CREATE POLICY "Users can view own order status history" ON order_status_history
+  FOR SELECT TO authenticated
+  USING (EXISTS (SELECT 1 FROM orders WHERE orders.id = order_status_history.order_id AND orders.created_by = auth.uid()));
+
+CREATE POLICY "Users can insert own order status history" ON order_status_history
+  FOR INSERT TO authenticated
+  WITH CHECK (EXISTS (SELECT 1 FROM orders WHERE orders.id = order_status_history.order_id AND orders.created_by = auth.uid()));
+
+CREATE POLICY "Users can update own order status history" ON order_status_history
+  FOR UPDATE TO authenticated
+  USING (EXISTS (SELECT 1 FROM orders WHERE orders.id = order_status_history.order_id AND orders.created_by = auth.uid()))
+  WITH CHECK (EXISTS (SELECT 1 FROM orders WHERE orders.id = order_status_history.order_id AND orders.created_by = auth.uid()));
+
+CREATE POLICY "Users can delete own order status history" ON order_status_history
+  FOR DELETE TO authenticated
+  USING (EXISTS (SELECT 1 FROM orders WHERE orders.id = order_status_history.order_id AND orders.created_by = auth.uid()));
 
 -- Additional indexes for forecasting
 CREATE INDEX idx_invoice_items_invoice ON invoice_items(invoice_id);
 CREATE INDEX idx_ingredient_usage_ingredient ON ingredient_usage_daily(ingredient_id);
+
+-- Function to increment customer order_count safely within tenant scope
+CREATE OR REPLACE FUNCTION increment_customer_order_count(customer_id UUID)
+RETURNS void AS $$
+BEGIN
+  UPDATE customers
+  SET order_count = order_count + 1
+  WHERE id = customer_id
+    AND created_by = auth.uid();
+END;
+$$ LANGUAGE plpgsql SECURITY INVOKER;
 
 -- Function to populate ingredient usage from orders
 CREATE OR REPLACE FUNCTION populate_ingredient_usage(target_date DATE)
@@ -296,15 +447,20 @@ BEGIN
   FROM orders o
   JOIN order_items oi ON oi.order_id = o.id
   JOIN product_ingredients pi ON pi.product_id = oi.product_id
+  JOIN products p ON p.id = pi.product_id
+  JOIN ingredients i ON i.id = pi.ingredient_id
   WHERE o.delivery_date = target_date
     AND o.status NOT IN ('cancelled')
+    AND o.created_by = auth.uid()
+    AND p.created_by = auth.uid()
+    AND i.created_by = auth.uid()
   GROUP BY pi.ingredient_id
   ON CONFLICT (ingredient_id, usage_date)
   DO UPDATE SET
     quantity_used = EXCLUDED.quantity_used,
     order_count = EXCLUDED.order_count;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql SECURITY INVOKER;
 
 -- Function to search orders with filters and pagination (single round-trip)
 CREATE OR REPLACE FUNCTION search_orders(
@@ -356,7 +512,9 @@ BEGIN
     WHERE oi.order_id = o.id
   ) oi_agg ON true
   WHERE
-    (status_filter IS NULL OR o.status = status_filter)
+    o.created_by = auth.uid()
+    AND (c.id IS NULL OR c.created_by = auth.uid())
+    AND (status_filter IS NULL OR o.status = status_filter)
     AND (date_filter IS NULL OR o.delivery_date = date_filter)
     AND (
       search_term IS NULL
@@ -368,4 +526,4 @@ BEGIN
   LIMIT page_size
   OFFSET page_offset;
 END;
-$$ LANGUAGE plpgsql STABLE SECURITY DEFINER;
+$$ LANGUAGE plpgsql STABLE SECURITY INVOKER;

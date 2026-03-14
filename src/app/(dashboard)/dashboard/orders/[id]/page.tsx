@@ -22,6 +22,7 @@ import { OrderStatusUpdate } from "@/components/orders/order-status-update";
 import { OrderStatusTimeline } from "@/components/orders/order-status-timeline";
 import { getTimeSlotLabel } from "@/lib/config";
 import type { Order, Customer, OrderItem, Profile } from "@/types/database";
+import { getBusinessRuntimeSettings } from "@/lib/business-settings";
 
 type OrderWithRelations = Order & {
   customer: Customer | null;
@@ -45,6 +46,7 @@ export default async function OrderDetailPage({
 }) {
   const { id } = await params;
   const supabase = await createClient();
+  const settings = await getBusinessRuntimeSettings(supabase);
 
   const [orderRes, historyRes] = await Promise.all([
     supabase
@@ -117,8 +119,8 @@ export default async function OrderDetailPage({
           </Link>
           <div>
             <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-bold text-gray-900">
-                Order {formatOrderNumber(order.order_number)}
+                <h1 className="text-2xl font-bold text-gray-900">
+                Order {formatOrderNumber(order.order_number, settings.orderNumberPrefix)}
               </h1>
               <Badge className={`${statusColors[order.status]} border`}>
                 {statusLabels[order.status]}
