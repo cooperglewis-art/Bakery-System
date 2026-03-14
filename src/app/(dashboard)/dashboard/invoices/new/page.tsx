@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -316,9 +317,12 @@ export default function NewInvoicePage() {
                   {queued.file.type === "application/pdf" ? (
                     <FileText className="h-10 w-10 text-red-500 shrink-0" />
                   ) : queued.preview ? (
-                    <img
+                    <Image
                       src={queued.preview}
-                      alt=""
+                      alt={`Preview of ${queued.file.name}`}
+                      width={40}
+                      height={40}
+                      unoptimized
                       className="h-10 w-10 rounded object-cover shrink-0"
                     />
                   ) : (

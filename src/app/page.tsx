@@ -37,6 +37,12 @@ const features = [
   },
 ];
 
+const outcomes = [
+  "Fewer missed details on custom orders",
+  "Faster supplier invoice processing",
+  "Clear prep planning for busy weeks",
+];
+
 export default async function Home() {
   const supabase = await createClient();
   const {
@@ -86,15 +92,23 @@ export default async function Home() {
           beautifully organized.
         </h1>
         <p className="mx-auto mt-6 max-w-lg text-lg leading-relaxed text-stone-500 sm:text-xl">
-          Order management, smart analytics, and ingredient forecasting —
-          everything you need to run your bakery with clarity.
+          Built for small bakery teams that need less chaos and more control.
+          Manage orders, costs, and prep in one place.
         </p>
+        <ul className="mx-auto mt-6 max-w-xl space-y-2 text-sm text-stone-600 sm:text-base">
+          {outcomes.map((outcome) => (
+            <li key={outcome} className="flex items-center justify-center gap-2">
+              <span className="inline-block h-1.5 w-1.5 rounded-full bg-stone-700" />
+              <span>{outcome}</span>
+            </li>
+          ))}
+        </ul>
         <div className="mt-10">
           <Link
             href="/login"
             className="inline-flex items-center gap-2 rounded-xl bg-stone-800 px-7 py-3.5 text-base font-semibold text-white shadow-apple transition-colors hover:bg-stone-900"
           >
-            Get Started
+            Start Free Demo
             <ArrowRight className="h-4 w-4" />
           </Link>
         </div>

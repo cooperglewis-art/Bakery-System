@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -436,9 +437,12 @@ export function InvoiceVerifyClient({
                     </div>
                   </object>
                 ) : (
-                  <img
+                  <Image
                     src={signedImageUrl}
                     alt={`Invoice from ${invoice.supplier_name}`}
+                    width={1200}
+                    height={1600}
+                    unoptimized
                     className="w-full h-auto object-contain max-h-[700px]"
                   />
                 )}
