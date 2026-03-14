@@ -1,18 +1,33 @@
 # Bakery System
 
-Bakery System is a Next.js + Supabase app for:
-- Order management
-- Customer tracking
-- Supplier invoice capture (OCR)
-- Ingredient matching and cost tracking
+Bakery System is a Next.js + Supabase app for small bakery operations.
+It centralizes orders, customers, supplier invoices, and business analytics in one dashboard.
+
+## Features
+
+- Order management with full status lifecycle
+- Customer tracking with notes and order history
+- AI-powered invoice OCR via Anthropic Claude
+- Ingredient matching and cost updates from invoices
 - Forecasting and analytics dashboards
+- Role-based settings and team controls
+
+## Tech Stack
+
+| Layer | Technologies |
+|---|---|
+| Frontend | Next.js 15, React 19, TypeScript, Tailwind CSS 4, shadcn/ui |
+| Backend | Supabase (Postgres, Auth, Storage, RLS) |
+| AI | Anthropic Claude |
+| Validation | Zod, React Hook Form |
+| Charts | Recharts |
 
 ## 1. Requirements
 
 - Node.js 20+
 - npm 10+
 - Supabase project
-- Anthropic API key (for invoice OCR)
+- Anthropic API key
 
 ## 2. Environment Setup
 
@@ -29,21 +44,22 @@ cp .env.example .env.local
 
 ## 3. Database Setup
 
-Apply schema and migrations in your Supabase project:
+Apply schema and migrations:
 
 ```bash
 supabase db push
 ```
 
-Seed core data:
+Seed data:
+
 ```bash
 psql "$SUPABASE_DB_URL" -f supabase/seed.sql
 psql "$SUPABASE_DB_URL" -f supabase/demo-seed.sql
 ```
 
 Notes:
-- The latest migration (`20260313090000_security_hardening.sql`) applies tenant-scoped security hardening and ownership defaults.
-- Invoice files are scoped by user folder in storage: `invoices/<auth.uid()>/...`
+- `20260313090000_security_hardening.sql` adds tenant-scoped hardening and ownership defaults.
+- Invoice files are stored per-user path: `invoices/<auth.uid()>/...`.
 
 ## 4. Run Locally
 
@@ -57,16 +73,14 @@ Start dev server:
 npm run dev
 ```
 
-Open:
-- [http://localhost:3000](http://localhost:3000)
+Open [http://localhost:3000](http://localhost:3000)
 
 ## 5. Demo Login
 
-Create a demo user through the app:
-- `/login` -> sign up
-
-Then sign in and open:
-- `/dashboard`
+Create a demo account in-app:
+- Visit `/login`
+- Use the Sign Up tab
+- Then sign in and open `/dashboard`
 
 ## 6. Quality Checks
 
@@ -80,6 +94,11 @@ Type check:
 npx tsc --noEmit
 ```
 
+Critical tests:
+```bash
+npm run test:critical
+```
+
 Production build:
 ```bash
 npm run build
@@ -88,11 +107,27 @@ npm run build
 ## 7. Deployment
 
 Recommended:
-- Vercel for Next.js app
-- Supabase for Postgres/Auth/Storage
+- Vercel for Next.js
+- Supabase for database/auth/storage
 
 Before production:
-- Rotate all API keys
+- Rotate API keys
 - Configure Supabase email provider
-- Create at least one admin account in `profiles`
-- Verify RLS and storage policies in production project
+- Ensure at least one `admin` in `profiles`
+- Verify RLS/storage policies in production
+
+## Project Structure
+
+```text
+src/
+  app/
+    (auth)/
+    (dashboard)/
+    api/
+    auth/
+  components/
+    layout/
+    ui/
+  lib/
+  types/
+```
